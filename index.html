@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notas Rápidas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* === 1. VARIÁVEIS === */
+    :root {
+      --primary: #1a73e8;
+      --primary-dark: #1557b0;
+      --primary-light: #e8f0fe;
+      --surface: #ffffff;
+      --surface-2: #f8f9fa;
+      --surface-3: #f1f3f4;
+      --outline: #dadce0;
+      --text: #202124;
+      --text-2: #5f6368;
+      --danger: #d93025;
+      --danger-bg: #fce8e6;
+      --panel-w: 380px;
+      --nav-w: 256px;
+      --radius: 8px;
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* === 2. RESET === */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Roboto', -apple-system, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--surface-3);
+    }
+
+    /* === 3. PÁGINA PRINCIPAL === */
+    .webpage {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* --- Top bar --- */
+    .gc-bar {
+      height: 64px;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      padding: 0 4px 0 8px;
+      gap: 4px;
+      flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,.2);
+      z-index: 10;
+    }
+
+    /* HAMBURGER – botão real e interativo */
+    #btn-hamburger {
+      width: 48px;
+      height: 48px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 0;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    #btn-hamburger:hover { background: rgba(255,255,255,.15); }
+    #btn-hamburger span {
+      display: block;
+      width: 18px;
+      height: 2px;
+      background: #fff;
+      border-radius: 1px;
+      transition: transform .3s var(--ease), opacity .3s;
+    }
+    /* animação X quando sidebar está fechada */
+    #btn-hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    #btn-hamburger.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    #btn-hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .gc-bar-logo {
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 500;
+      letter-spacing: .3px;
+      padding-left: 4px;
+    }
+    .gc-bar-logo b {
+      background: rgba(255,255,255,.18);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: .65rem;
+      margin-left: 4px;
+      font-weight: 700;
+      letter-spacing: .5px;
+    }
+
+    .gc-bar-search {
+      margin-left: 16px;
+      flex: 1;
+      max-width: 540px;
+      height: 40px;
+      background: rgba(255,255,255,.12);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 8px;
+      color: rgba(255,255,255,.7);
+      font-size: .875rem;
+    }
+
+    .gc-bar-avatar {
+      margin-left: auto;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #34a853, #4285f4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: .85rem;
+      font-weight: 500;
+      flex-shrink: 0;
+      margin-right: 8px;
+    }
+
+    /* --- Body layout --- */
+    .gc-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* --- Sidebar nav --- */
+    #gc-nav {
+      width: var(--nav-w);
+      min-width: var(--nav-w);
+      background: var(--surface);
+      border-right: 1px solid var(--outline);
+      padding: 8px 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      flex-shrink: 0;
+      transition: width .3s var(--ease), min-width .3s var(--ease), opacity .25s ease;
+    }
+    #gc-nav.closed {
+      width: 0;
+      min-width: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .gc-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 11px 16px;
+      border-radius: 0 24px 24px 0;
+      margin-right: 8px;
+      font-size: .875rem;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s, color .15s;
+    }
+    .gc-nav-item:hover { background: var(--surface-3); }
+    .gc-nav-item.active { background: var(--primary-light); color: var(--primary); }
+
+    .gc-nav-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: .7;
+    }
+    .gc-nav-item.active .gc-nav-icon { opacity: 1; }
+
+    /* --- Main content area --- */
+    .gc-stream {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* === 4. VIEWS === */
+    .view { display: flex; flex-direction: column; flex: 1; }
+    .view.hidden { display: none; }
+
+    /* View: Início (fake classroom stream) */
+    #view-inicio { padding: 24px; gap: 12px; }
+
+    .gc-stream-header {
+      background: linear-gradient(135deg, #1a73e8, #0d47a1);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      color: #fff;
+      margin-bottom: 4px;
+      flex-shrink: 0;
+    }
+    .gc-stream-header h2 { font-size: 1.4rem; font-weight: 500; }
+    .gc-stream-header p  { font-size: .85rem; opacity: .8; margin-top: 4px; }
+
+    .gc-card {
+      background: var(--surface);
+      border: 1px solid var(--outline);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      flex-shrink: 0;
+    }
+    .gc-card-icon {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .gc-card h3 { font-size: .9rem; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+    .gc-card p  { font-size: .8rem; color: var(--text-2); line-height: 1.45; }
+
+    /* View: Quadro */
+    #view-quadro { overflow: hidden; }
+
+    .quadro-topbar {
+      padding: 20px 24px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .quadro-topbar h2 {
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .quadro-count {
+      font-size: .8rem;
+      color: var(--text-2);
+      background: var(--surface-3);
+      border: 1px solid var(--outline);
+      border-radius: 12px;
+      padding: 2px 10px;
+    }
+    .quadro-add-btn {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: .85rem;
+      font-weight: 500;
+      transition: background .15s, box-shadow .15s;
+    }
+    .quadro-add-btn:hover { background: var(--primary-dark); box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+
+    /* Controles de zoom */
+    .zoom-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--surface);
+      border: 1px solid var(--outline);
+      border-radius: 8px;
+      padding: 3px 4px;
+    }
+    .zoom-btn {
+      width: 28px; height: 28px;
+      border: none;
+      background: transparent;
+      border-radius: 5px;
+      cursor: pointer;
+      color: var(--text-2);
+      font-size: 1rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s, color .15s;
+      line-height: 1;
+    }
+    .zoom-btn:hover { background: var(--surface-3); color: var(--text); }
+    .zoom-level {
+      font-size: .78rem;
+      color: var(--text-2);
+      min-width: 38px;
+      text-align: center;
+      font-weight: 500;
+      user-select: none;
+    }
+    .zoom-divider { width: 1px; height: 16px; background: var(--outline); margin: 0 2px; }
+
+    /* Board viewport – captura wheel e drag */
+    #board-grid {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      background-image: radial-gradient(circle, #c8c8c8 1px, transparent 1px);
+      background-size: 22px 22px;
+      background-color: var(--surface-3);
+      cursor: grab;
+      user-select: none;
+    }
+    #board-grid.dragging { cursor: grabbing; }
+
+    /* Canvas transformável — posicionamento livre */
+    #board-canvas {
+      position: relative;
+      width: 4000px;
+      height: 3000px;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+
+    /* Empty state — fixo no centro do viewport */
+    #board-empty {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 10px;
+      pointer-events: none;
+    }
+    #board-empty.hidden { display: none; }
+    .board-empty-icon  { font-size: 3rem; opacity: .35; display: block; }
+    .board-empty-title { font-size: 1rem; font-weight: 500; color: var(--text); }
+    .board-empty-sub   { font-size: .85rem; color: var(--text-2); line-height: 1.5; }
+
+    /* Board card — posição absoluta, arrastável */
+    .board-card {
+      position: absolute;
+      width: 220px;
+      background: var(--note-bg, #fff);
+      border: 1px solid rgba(0,0,0,.07);
+      border-top: 4px solid var(--note-accent, #1a73e8);
+      border-radius: var(--radius);
+      padding: 14px;
+      cursor: grab;
+      min-height: 90px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      transition: box-shadow .2s;
+      animation: cardIn .2s var(--ease) forwards;
+      word-break: break-word;
+    }
+    .board-card:hover  { box-shadow: 0 6px 16px rgba(0,0,0,.14); }
+    .board-card.dragging-card { cursor: grabbing; box-shadow: 0 12px 28px rgba(0,0,0,.22); z-index: 999 !important; transition: none; }
+    .board-card.selected {
+      box-shadow: 0 0 0 2px var(--primary), 0 6px 18px rgba(26,115,232,.22);
+    }
+    .board-card.removing {
+      animation: cardOut .22s var(--ease) forwards;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .board-card-text {
+      font-size: .875rem;
+      color: var(--text);
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .board-card-del {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 26px; height: 26px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity .15s, background .15s, color .15s;
+    }
+    .board-card:hover .board-card-del { opacity: 1; }
+    .board-card-del:hover { background: var(--danger-bg); color: var(--danger); }
+
+    /* View: Em breve */
+    #view-outros {
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--text-2);
+    }
+    .outros-icon  { font-size: 2.8rem; opacity: .4; }
+    .outros-title { font-size: 1rem; font-weight: 500; color: var(--text); }
+    .outros-sub   { font-size: .85rem; }
+
+    /* === 5. BOTÃO TRIGGER === */
+    .ext-trigger {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px; height: 56px;
+      border-radius: 16px;
+      background: var(--primary);
+      border: none;
+      cursor: pointer;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,.24), 0 2px 4px rgba(0,0,0,.16);
+      transition: background .2s, box-shadow .2s, transform .15s;
+      z-index: 100;
+    }
+    .ext-trigger:hover { background: var(--primary-dark); box-shadow: 0 6px 12px rgba(0,0,0,.26); }
+    .ext-trigger:active { transform: scale(.95); }
+
+    /* === 6. BACKDROP === */
+    .ext-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.18);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s var(--ease);
+    }
+    .ext-backdrop.visible { opacity: 1; pointer-events: auto; }
+
+    /* === 7. PAINEL EXTENSÃO === */
+    .ext-panel {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: var(--panel-w);
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      z-index: 300;
+      box-shadow: -4px 0 24px rgba(0,0,0,.14);
+      transform: translateX(100%);
+      transition: transform .3s var(--ease);
+    }
+    .ext-panel.open { transform: translateX(0); }
+
+    /* --- Header do painel --- */
+    .panel-header {
+      height: 64px;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      padding: 0 8px 0 20px;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .panel-header-icon {
+      width: 30px; height: 30px;
+      background: rgba(255,255,255,.2);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .panel-title { color: #fff; font-size: 1rem; font-weight: 500; flex: 1; }
+    .panel-count {
+      background: rgba(255,255,255,.2);
+      color: #fff;
+      font-size: .75rem;
+      font-weight: 500;
+      padding: 2px 9px;
+      border-radius: 12px;
+    }
+    .panel-icon-btn {
+      width: 38px; height: 38px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    .panel-icon-btn:hover { background: rgba(255,255,255,.15); }
+
+    /* --- Lista de notas no painel --- */
+    .notes-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 14px 96px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--outline) transparent;
+    }
+    .notes-list::-webkit-scrollbar { width: 5px; }
+    .notes-list::-webkit-scrollbar-thumb { background: var(--outline); border-radius: 3px; }
+
+    /* Empty state do painel */
+    #panel-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 56px 24px;
+      text-align: center;
+      gap: 10px;
+    }
+    #panel-empty.hidden { display: none; }
+    .empty-icon  { font-size: 2.8rem; opacity: .4; display: block; }
+    .empty-title { font-size: .95rem; font-weight: 500; color: var(--text); }
+    .empty-sub   { font-size: .8rem; color: var(--text-2); line-height: 1.5; }
+
+    /* Panel note card */
+    .panel-card {
+      background: var(--note-bg, #fff);
+      border: 1px solid var(--outline);
+      border-left: 4px solid var(--note-accent, #1a73e8);
+      border-radius: var(--radius);
+      padding: 12px 38px 12px 14px;
+      position: relative;
+      cursor: pointer;
+      transition: box-shadow .2s, transform .2s;
+      animation: cardIn .22s var(--ease) forwards;
+      word-break: break-word;
+    }
+    .panel-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+    .panel-card.selected {
+      box-shadow: 0 0 0 2px var(--primary), 0 4px 14px rgba(26,115,232,.18);
+      transform: translateY(-1px);
+    }
+    .panel-card.removing {
+      animation: cardOut .22s var(--ease) forwards;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .panel-card-text {
+      font-size: .875rem;
+      color: var(--text);
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .panel-card-del {
+      position: absolute;
+      top: 8px; right: 8px;
+      width: 26px; height: 26px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity .15s, background .15s, color .15s;
+    }
+    .panel-card:hover .panel-card-del { opacity: 1; }
+    .panel-card-del:hover { background: var(--danger-bg); color: var(--danger); }
+
+    /* === 8. FAB + FORMULÁRIO === */
+    .panel-fab {
+      position: absolute;
+      bottom: 20px; right: 20px;
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      background: var(--primary);
+      border: none;
+      cursor: pointer;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 6px rgba(0,0,0,.2), 0 6px 10px rgba(0,0,0,.14);
+      transition: background .2s, box-shadow .2s, transform .15s;
+      z-index: 5;
+    }
+    .panel-fab:hover { background: var(--primary-dark); box-shadow: 0 5px 10px rgba(0,0,0,.22); }
+    .panel-fab:active { transform: scale(.95); }
+
+    .add-form {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--outline);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,.07);
+      transform: translateY(100%);
+      transition: transform .3s var(--ease);
+      z-index: 10;
+    }
+    .add-form.open { transform: translateY(0); }
+
+    .form-row { display: flex; align-items: center; gap: 8px; }
+    .form-label { font-size: .75rem; color: var(--text-2); font-weight: 500; white-space: nowrap; }
+
+    .color-picker { display: flex; gap: 6px; align-items: center; }
+    .color-dot {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform .15s, border-color .15s, box-shadow .15s;
+      flex-shrink: 0;
+    }
+    .color-dot:hover { transform: scale(1.18); }
+    .color-dot.active { border-color: #333; box-shadow: 0 0 0 1px #fff inset; transform: scale(1.1); }
+
+    #note-input {
+      width: 100%;
+      border: 1px solid var(--outline);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: .875rem;
+      color: var(--text);
+      resize: none;
+      outline: none;
+      min-height: 80px;
+      max-height: 160px;
+      background: var(--surface-2);
+      transition: border-color .15s, box-shadow .15s, background .15s;
+      line-height: 1.5;
+    }
+    #note-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(26,115,232,.12);
+      background: var(--surface);
+    }
+    #note-input::placeholder { color: #9aa0a6; }
+
+    #error-msg { font-size: .75rem; color: var(--danger); min-height: 14px; }
+
+    .form-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .btn-ghost {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: .875rem;
+      font-weight: 500;
+      color: var(--text-2);
+      transition: background .15s;
+    }
+    .btn-ghost:hover { background: var(--surface-3); }
+    .btn-solid {
+      padding: 8px 20px;
+      border: none;
+      background: var(--primary);
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: .875rem;
+      font-weight: 500;
+      color: #fff;
+      transition: background .15s, box-shadow .15s;
+    }
+    .btn-solid:hover { background: var(--primary-dark); box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+
+    /* === 9. ANIMAÇÕES === */
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(-6px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes cardOut {
+      0%   { opacity: 1; max-height: 300px; transform: scale(1); }
+      100% { opacity: 0; max-height: 0; transform: scale(.95); padding-top: 0; padding-bottom: 0; margin: 0; border-width: 0; }
+    }
+
+    /* === 10. UTILS === */
+    .hidden { display: none !important; }
+
+    /* === 11. RESPONSIVO === */
+    @media (max-width: 768px) {
+      #gc-nav { width: 0; min-width: 0; opacity: 0; pointer-events: none; }
+      #gc-nav.open { width: var(--nav-w); min-width: var(--nav-w); opacity: 1; pointer-events: auto; }
+      :root { --panel-w: 100vw; }
+    }
+
+    /* === 12. ACESSIBILIDADE === */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== PÁGINA PRINCIPAL ===================== -->
+  <div class="webpage">
+
+    <!-- Top bar -->
+    <div class="gc-bar">
+      <button id="btn-hamburger" aria-label="Abrir menu de navegação">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="gc-bar-logo">Google <b>Classroom</b></div>
+      <div class="gc-bar-search">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Pesquisar
+      </div>
+      <div class="gc-bar-avatar">G</div>
+    </div>
+
+    <!-- Body -->
+    <div class="gc-body">
+
+      <!-- Sidebar nav -->
+      <nav id="gc-nav" aria-label="Menu de navegação">
+
+        <div class="gc-nav-item active" data-view="inicio">
+          <span class="gc-nav-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </span>
+          Início
+        </div>
+
+        <div class="gc-nav-item" data-view="quadro">
+          <span class="gc-nav-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </span>
+          Quadro
+        </div>
+
+        <div class="gc-nav-item" data-view="tarefas">
+          <span class="gc-nav-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </span>
+          Tarefas
+        </div>
+
+        <div class="gc-nav-item" data-view="calendario">
+          <span class="gc-nav-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </span>
+          Calendário
+        </div>
+
+        <div class="gc-nav-item" data-view="arquivados">
+          <span class="gc-nav-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+          </span>
+          Arquivados
+        </div>
+
+      </nav>
+
+      <!-- Main stream -->
+      <main class="gc-stream">
+
+        <!-- View: Início -->
+        <div id="view-inicio" class="view" style="padding:24px; gap:12px;">
+          <div class="gc-stream-header">
+            <h2>Desenvolvimento Web</h2>
+            <p>Turma A &mdash; Prof. Almeida &middot; 2025</p>
+          </div>
+          <div class="gc-card">
+            <div class="gc-card-icon" style="background:#e8f0fe">📚</div>
+            <div><h3>Novo material: CSS Grid e Flexbox</h3><p>Postado ontem às 14h32 &middot; Leitura obrigatória</p></div>
+          </div>
+          <div class="gc-card">
+            <div class="gc-card-icon" style="background:#fce8e6">📝</div>
+            <div><h3>Projeto Final — entrega em 30/05</h3><p>Interface web com React &middot; Valor: 40 pontos</p></div>
+          </div>
+          <div class="gc-card">
+            <div class="gc-card-icon" style="background:#e6f4ea">✅</div>
+            <div><h3>Nota publicada — Atividade 3</h3><p>9,5 / 10,0 &middot; Parabéns pelo trabalho!</p></div>
+          </div>
+          <div class="gc-card">
+            <div class="gc-card-icon" style="background:#fef7e0">📢</div>
+            <div><h3>Banco de Dados — Turma B</h3><p>Aula cancelada na quinta. Reposição: sexta às 19h.</p></div>
+          </div>
+          <div class="gc-card">
+            <div class="gc-card-icon" style="background:#f3e8fd">💬</div>
+            <div><h3>Novo comentário na sua entrega</h3><p>Prof. Almeida comentou em "Análise de Algoritmos"</p></div>
+          </div>
+          <div class="gc-card">
+            <div class="gc-card-icon" style="background:#e8f0fe">🔔</div>
+            <div><h3>Lembrete: Quiz de JavaScript amanhã</h3><p>Assuntos: closures, promessas e event loop</p></div>
+          </div>
+        </div>
+
+        <!-- View: Quadro -->
+        <div id="view-quadro" class="view hidden">
+          <div class="quadro-topbar">
+            <h2>Quadro</h2>
+            <span class="quadro-count" id="board-count">0 notas</span>
+            <!-- Controles de zoom -->
+            <div class="zoom-controls" role="group" aria-label="Controles de zoom">
+              <button class="zoom-btn" id="btn-zoom-out" aria-label="Reduzir zoom" title="Reduzir (Ctrl+-)">−</button>
+              <span class="zoom-level" id="zoom-level">100%</span>
+              <button class="zoom-btn" id="btn-zoom-in" aria-label="Aumentar zoom" title="Aumentar (Ctrl++)">+</button>
+              <div class="zoom-divider"></div>
+              <button class="zoom-btn" id="btn-zoom-reset" aria-label="Resetar zoom" title="Resetar zoom (Ctrl+0)" style="font-size:.7rem;width:36px;">100%</button>
+            </div>
+            <button class="quadro-add-btn" id="btn-quadro-add" aria-label="Adicionar nota">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Nova nota
+            </button>
+          </div>
+          <div id="board-grid" role="region" aria-label="Quadro de notas">
+            <div id="board-canvas"></div>
+            <div id="board-empty" aria-live="polite">
+              <span class="board-empty-icon">📋</span>
+              <p class="board-empty-title">O quadro está vazio</p>
+              <p class="board-empty-sub">Clique em "Nova nota" ou no botão ✏️<br>para adicionar sua primeira nota</p>
+            </div>
+          </div><!-- /#board-grid -->
+        </div><!-- /#view-quadro -->
+
+        <!-- View: outros (em breve) -->
+        <div id="view-outros" class="view hidden">
+          <span class="outros-icon">🚧</span>
+          <p class="outros-title">Em breve</p>
+          <p class="outros-sub">Esta seção ainda está em desenvolvimento.</p>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ===================== EXTENSÃO ===================== -->
+
+  <button class="ext-trigger" id="ext-trigger" aria-label="Abrir Notas Rápidas" title="Notas Rápidas">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+      <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+    </svg>
+  </button>
+
+  <div class="ext-backdrop" id="ext-backdrop"></div>
+
+  <aside class="ext-panel" id="ext-panel" role="complementary" aria-label="Notas Rápidas">
+
+    <div class="panel-header">
+      <div class="panel-header-icon">
+        <svg width="15" height="15" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+        </svg>
+      </div>
+      <span class="panel-title">Notas Rápidas</span>
+      <span class="panel-count" id="panel-counter">0 notas</span>
+      <button class="panel-icon-btn" id="btn-close" aria-label="Fechar painel">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="notes-list" id="notes-list">
+      <div id="panel-empty" aria-live="polite">
+        <span class="empty-icon">📋</span>
+        <p class="empty-title">Nenhuma nota ainda</p>
+        <p class="empty-sub">Clique em + para adicionar<br>sua primeira nota</p>
+      </div>
+    </div>
+
+    <button class="panel-fab" id="btn-fab" aria-label="Adicionar nova nota">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </button>
+
+    <div class="add-form" id="add-form" role="form" aria-label="Adicionar nota">
+      <div class="form-row">
+        <span class="form-label">Cor:</span>
+        <div class="color-picker" id="color-picker" role="group" aria-label="Escolher cor da nota"></div>
+      </div>
+      <textarea
+        id="note-input"
+        placeholder="Digite sua nota... (Enter para salvar, Shift+Enter para nova linha)"
+        aria-label="Texto da nota"
+        aria-required="true"
+        maxlength="500"
+        rows="3"
+      ></textarea>
+      <div id="error-msg" role="alert" aria-live="polite" aria-atomic="true"></div>
+      <div class="form-actions">
+        <button type="button" class="btn-ghost" id="btn-cancel">Cancelar</button>
+        <button type="button" class="btn-solid" id="btn-save">Salvar nota</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===================== JAVASCRIPT ===================== -->
+  <script>
+    'use strict';
+
+    var NOTE_COLORS = [
+      { bg: '#fefce8', accent: '#ca8a04', label: 'Amarelo' },
+      { bg: '#fff1f2', accent: '#f43f5e', label: 'Rosa'    },
+      { bg: '#eff6ff', accent: '#3b82f6', label: 'Azul'    },
+      { bg: '#f0fdf4', accent: '#22c55e', label: 'Verde'   },
+      { bg: '#faf5ff', accent: '#a855f7', label: 'Roxo'    },
+      { bg: '#fff7ed', accent: '#f97316', label: 'Laranja' },
+    ];
+
+    // ── DOM refs ──────────────────────────────────────────────────
+    var hamburgerBtn  = document.getElementById('btn-hamburger');
+    var gcNav         = document.getElementById('gc-nav');
+    var navItems      = document.querySelectorAll('.gc-nav-item[data-view]');
+
+    var extTrigger    = document.getElementById('ext-trigger');
+    var extBackdrop   = document.getElementById('ext-backdrop');
+    var extPanel      = document.getElementById('ext-panel');
+    var btnClose      = document.getElementById('btn-close');
+
+    var notesList     = document.getElementById('notes-list');
+    var panelEmpty    = document.getElementById('panel-empty');
+    var panelCounter  = document.getElementById('panel-counter');
+
+    var boardGrid     = document.getElementById('board-grid');
+    var boardCanvas   = document.getElementById('board-canvas');
+    var boardEmpty    = document.getElementById('board-empty');
+    var boardCount    = document.getElementById('board-count');
+
+    var fabBtn        = document.getElementById('btn-fab');
+    var addForm       = document.getElementById('add-form');
+    var noteInput     = document.getElementById('note-input');
+    var cancelBtn     = document.getElementById('btn-cancel');
+    var saveBtn       = document.getElementById('btn-save');
+    var errorMsgEl    = document.getElementById('error-msg');
+    var colorPickerEl = document.getElementById('color-picker');
+    var btnQuadroAdd  = document.getElementById('btn-quadro-add');
+
+    var zoomLevelEl   = document.getElementById('zoom-level');
+    var btnZoomIn     = document.getElementById('btn-zoom-in');
+    var btnZoomOut    = document.getElementById('btn-zoom-out');
+    var btnZoomReset  = document.getElementById('btn-zoom-reset');
+
+    // ── Zoom / Pan ────────────────────────────────────────────────
+    var bScale  = 1;
+    var bPanX   = 0;
+    var bPanY   = 0;
+    var MIN_SCALE = 0.2;
+    var MAX_SCALE = 4;
+
+    function applyBoardTransform() {
+      boardCanvas.style.transform =
+        'translate(' + bPanX + 'px, ' + bPanY + 'px) scale(' + bScale + ')';
+      // Fundo de pontos acompanha o pan/zoom (efeito canvas infinito)
+      var dotSize = 22 * bScale;
+      boardGrid.style.backgroundSize = dotSize + 'px ' + dotSize + 'px';
+      boardGrid.style.backgroundPosition = bPanX + 'px ' + bPanY + 'px';
+      zoomLevelEl.textContent = Math.round(bScale * 100) + '%';
+    }
+
+    // Zoom centralizado num ponto (cx, cy) dentro do viewport
+    function zoomAt(cx, cy, newScale) {
+      newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, newScale));
+      var canvasX = (cx - bPanX) / bScale;
+      var canvasY = (cy - bPanY) / bScale;
+      bScale = newScale;
+      bPanX  = cx - canvasX * bScale;
+      bPanY  = cy - canvasY * bScale;
+      applyBoardTransform();
+    }
+
+    // Wheel → zoom no cursor
+    boardGrid.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      var rect = boardGrid.getBoundingClientRect();
+      var cx = e.clientX - rect.left;
+      var cy = e.clientY - rect.top;
+      var factor = e.deltaY < 0 ? 1.1 : 0.9; // scroll up = zoom in
+      zoomAt(cx, cy, bScale * factor);
+    }, { passive: false });
+
+    // Botões de zoom (centrado no viewport)
+    function zoomCenter(factor) {
+      var cx = boardGrid.clientWidth  / 2;
+      var cy = boardGrid.clientHeight / 2;
+      zoomAt(cx, cy, bScale * factor);
+    }
+    btnZoomIn.addEventListener('click',    function() { zoomCenter(1.25); });
+    btnZoomOut.addEventListener('click',   function() { zoomCenter(0.8); });
+    btnZoomReset.addEventListener('click', function() {
+      bScale = 1; bPanX = 0; bPanY = 0;
+      applyBoardTransform();
+    });
+
+    // Atalhos de teclado (Ctrl +, Ctrl -, Ctrl 0)
+    document.addEventListener('keydown', function(e) {
+      if (!e.ctrlKey && !e.metaKey) return;
+      if (currentView !== 'quadro') return;
+      if (e.key === '=' || e.key === '+') { e.preventDefault(); zoomCenter(1.25); }
+      if (e.key === '-')                  { e.preventDefault(); zoomCenter(0.8);  }
+      if (e.key === '0')                  { e.preventDefault(); bScale=1; bPanX=0; bPanY=0; applyBoardTransform(); }
+    });
+
+    // Pan – arrastar com mouse
+    var isDragging  = false;
+    var dragStartX  = 0, dragStartY  = 0;
+    var dragStartPX = 0, dragStartPY = 0;
+    var hasMoved    = false;
+
+    // Card drag state
+    var activeDragCard        = null;
+    var activeDragNoteId      = null;
+    var activeDragOffsetX     = 0;
+    var activeDragOffsetY     = 0;
+    var activeDragHasMoved    = false;
+    var lastCardDragHasMoved  = false;
+
+    function screenToCanvas(sx, sy) {
+      var rect = boardGrid.getBoundingClientRect();
+      return {
+        x: (sx - rect.left - bPanX) / bScale,
+        y: (sy - rect.top  - bPanY) / bScale
+      };
+    }
+
+    function getInitialBoardPos() {
+      var cx  = (boardGrid.clientWidth  / 2 - bPanX) / bScale - 110;
+      var cy  = (boardGrid.clientHeight / 3 - bPanY) / bScale;
+      var off = NoteManager.notes.length % 8 * 30;
+      return { x: Math.max(20, cx + off), y: Math.max(20, cy + off) };
+    }
+
+    boardGrid.addEventListener('mousedown', function(e) {
+      // Não inicia pan ao clicar nos cards ou botões internos
+      if (e.target.closest('.board-card') || e.target.closest('.board-card-del')) return;
+      isDragging  = true;
+      hasMoved    = false;
+      dragStartX  = e.clientX;
+      dragStartY  = e.clientY;
+      dragStartPX = bPanX;
+      dragStartPY = bPanY;
+      boardGrid.classList.add('dragging');
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', function(e) {
+      if (activeDragCard) {
+        var pos = screenToCanvas(e.clientX, e.clientY);
+        activeDragCard.style.left = (pos.x - activeDragOffsetX) + 'px';
+        activeDragCard.style.top  = (pos.y - activeDragOffsetY) + 'px';
+        activeDragHasMoved = true;
+        return;
+      }
+      if (!isDragging) return;
+      var dx = e.clientX - dragStartX;
+      var dy = e.clientY - dragStartY;
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) hasMoved = true;
+      bPanX = dragStartPX + dx;
+      bPanY = dragStartPY + dy;
+      applyBoardTransform();
+    });
+
+    document.addEventListener('mouseup', function(e) {
+      if (activeDragCard) {
+        lastCardDragHasMoved = activeDragHasMoved;
+        if (activeDragHasMoved) {
+          var pos = screenToCanvas(e.clientX, e.clientY);
+          var nx  = pos.x - activeDragOffsetX;
+          var ny  = pos.y - activeDragOffsetY;
+          for (var i = 0; i < NoteManager.notes.length; i++) {
+            if (NoteManager.notes[i].id === activeDragNoteId) {
+              NoteManager.notes[i].boardX = nx;
+              NoteManager.notes[i].boardY = ny;
+              break;
+            }
+          }
+        }
+        activeDragCard.classList.remove('dragging-card');
+        activeDragCard     = null;
+        activeDragNoteId   = null;
+        activeDragHasMoved = false;
+        return;
+      }
+      if (!isDragging) return;
+      isDragging = false;
+      boardGrid.classList.remove('dragging');
+    });
+
+    // ── Hamburger ─────────────────────────────────────────────────
+    var navOpen = true;
+
+    hamburgerBtn.addEventListener('click', function() {
+      navOpen = !navOpen;
+      hamburgerBtn.classList.toggle('active', !navOpen);
+      gcNav.classList.toggle('closed', !navOpen);
+    });
+
+    // ── Navegação entre views ─────────────────────────────────────
+    var currentView = 'inicio';
+    var views = {
+      inicio:     document.getElementById('view-inicio'),
+      quadro:     document.getElementById('view-quadro'),
+      outros:     document.getElementById('view-outros'),
+    };
+
+    function switchView(name) {
+      currentView = name;
+
+      // atualiza views
+      Object.keys(views).forEach(function(k) {
+        views[k].classList.add('hidden');
+      });
+      var target = views[name] || views['outros'];
+      target.classList.remove('hidden');
+
+      // atualiza nav
+      navItems.forEach(function(item) {
+        var v = item.getAttribute('data-view');
+        item.classList.toggle('active', v === name);
+      });
+    }
+
+    navItems.forEach(function(item) {
+      item.addEventListener('click', function() {
+        var v = item.getAttribute('data-view');
+        switchView(v);
+      });
+    });
+
+    // ── Painel extensão ───────────────────────────────────────────
+    function openPanel() {
+      extPanel.classList.add('open');
+      extBackdrop.classList.add('visible');
+      extTrigger.style.display = 'none';
+    }
+    function closePanel() {
+      extPanel.classList.remove('open');
+      extBackdrop.classList.remove('visible');
+      extTrigger.style.display = '';
+      closeForm();
+    }
+
+    extTrigger.addEventListener('click', openPanel);
+    btnClose.addEventListener('click', closePanel);
+    extBackdrop.addEventListener('click', closePanel);
+
+    // botão "Nova nota" do quadro → abre painel no form
+    btnQuadroAdd.addEventListener('click', function() {
+      openPanel();
+      openForm();
+    });
+
+    // ── Formulário ────────────────────────────────────────────────
+    var formOpen = false;
+    var selectedColorIdx = 0;
+
+    // Monta o color picker
+    NOTE_COLORS.forEach(function(color, idx) {
+      var dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'color-dot' + (idx === 0 ? ' active' : '');
+      dot.style.background = color.accent;
+      dot.setAttribute('aria-label', 'Cor ' + color.label);
+      dot.setAttribute('title', color.label);
+      dot.addEventListener('click', function() {
+        selectedColorIdx = idx;
+        colorPickerEl.querySelectorAll('.color-dot').forEach(function(b) { b.classList.remove('active'); });
+        dot.classList.add('active');
+      });
+      colorPickerEl.appendChild(dot);
+    });
+
+    function openForm() {
+      formOpen = true;
+      addForm.classList.add('open');
+      fabBtn.style.display = 'none';
+      setTimeout(function() { noteInput.focus(); }, 310);
+    }
+    function closeForm() {
+      formOpen = false;
+      addForm.classList.remove('open');
+      fabBtn.style.display = '';
+      noteInput.value = '';
+      errorMsgEl.textContent = '';
+    }
+
+    fabBtn.addEventListener('click', openForm);
+    cancelBtn.addEventListener('click', closeForm);
+    saveBtn.addEventListener('click', function() { NoteManager.addNote(noteInput.value); });
+
+    noteInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') { closeForm(); return; }
+
+      if (e.key === 'Enter' && e.shiftKey) {
+        // Shift+Enter → insere quebra de linha na posição do cursor
+        e.preventDefault();
+        var start = noteInput.selectionStart;
+        var end   = noteInput.selectionEnd;
+        noteInput.value = noteInput.value.slice(0, start) + '\n' + noteInput.value.slice(end);
+        noteInput.selectionStart = noteInput.selectionEnd = start + 1;
+        return;
+      }
+
+      if (e.key === 'Enter') {
+        // Enter simples → salva
+        e.preventDefault();
+        NoteManager.addNote(noteInput.value);
+      }
+    });
+
+    // ── Utilitário: animar remoção ────────────────────────────────
+    function animateOut(el) {
+      if (!el || el.classList.contains('removing')) return;
+      el.classList.add('removing');
+      var done = false;
+      function finish() {
+        if (done) return;
+        done = true;
+        el.removeEventListener('animationend', finish);
+        if (el.parentNode) el.parentNode.removeChild(el);
+      }
+      el.addEventListener('animationend', finish, { once: true });
+      setTimeout(function() { finish(); }, 350); // fallback
+    }
+
+    // ── Utilitário: criar SVG de X ────────────────────────────────
+    function makeDelSvg() {
+      var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', '14'); svg.setAttribute('height', '14');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('fill', 'none');
+      svg.setAttribute('stroke', 'currentColor');
+      svg.setAttribute('stroke-width', '2.5');
+      svg.setAttribute('stroke-linecap', 'round');
+      var l1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      l1.setAttribute('x1','18'); l1.setAttribute('y1','6');
+      l1.setAttribute('x2','6');  l1.setAttribute('y2','18');
+      var l2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      l2.setAttribute('x1','6');  l2.setAttribute('y1','6');
+      l2.setAttribute('x2','18'); l2.setAttribute('y2','18');
+      svg.appendChild(l1); svg.appendChild(l2);
+      return svg;
+    }
+
+    // ── NoteManager ───────────────────────────────────────────────
+    var NoteManager = {
+      notes:      [],
+      selectedId: null,
+
+      addNote: function(text) {
+        if (!text || text.trim().length === 0) {
+          errorMsgEl.textContent = 'Digite algo antes de salvar.';
+          noteInput.focus();
+          return;
+        }
+
+        var color = NOTE_COLORS[selectedColorIdx];
+        var pos   = getInitialBoardPos();
+        var note  = { id: crypto.randomUUID(), text: text.trim(), color: color, boardX: pos.x, boardY: pos.y };
+
+        this.notes.unshift(note);
+
+        // Cria card no painel e insere no topo (prepend evita conflito com text nodes)
+        var pc = this.createPanelCard(note);
+        notesList.prepend(pc);
+        notesList.scrollTop = 0; // garante que a nova nota está visível
+
+        // Cria card no quadro e insere no topo do canvas
+        var bc = this.createBoardCard(note);
+        boardCanvas.prepend(bc);
+
+        closeForm();
+        this.updateCounters();
+        this.updateEmpties();
+      },
+
+      removeNote: function(id) {
+        this.notes = this.notes.filter(function(n) { return n.id !== id; });
+        if (this.selectedId === id) this.selectedId = null;
+
+        // Remove do painel
+        var pc = notesList.querySelector('[data-id="' + id + '"]');
+        animateOut(pc);
+
+        // Remove do quadro
+        var bc = boardGrid.querySelector('[data-id="' + id + '"]');
+        animateOut(bc);
+
+        this.updateCounters();
+        this.updateEmpties();
+      },
+
+      selectNote: function(id) {
+        if (this.selectedId === id) { this.clearSelection(); return; }
+        this.clearSelection();
+        // Seleciona nos dois lugares se existirem
+        var pc = notesList.querySelector('[data-id="' + id + '"]');
+        var bc = boardGrid.querySelector('[data-id="' + id + '"]');
+        if (pc) pc.classList.add('selected');
+        if (bc) bc.classList.add('selected');
+        this.selectedId = id;
+      },
+
+      clearSelection: function() {
+        document.querySelectorAll('.panel-card.selected, .board-card.selected').forEach(function(el) {
+          el.classList.remove('selected');
+        });
+        this.selectedId = null;
+      },
+
+      // ── Card do painel (compacto, borda esquerda) ──────────────
+      createPanelCard: function(note) {
+        var self = this;
+        var id   = note.id;
+
+        var card = document.createElement('div');
+        card.className = 'panel-card';
+        card.setAttribute('data-id', id);
+        card.setAttribute('role', 'article');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-label', 'Nota: ' + note.text);
+        card.style.setProperty('--note-bg', note.color.bg);
+        card.style.setProperty('--note-accent', note.color.accent);
+
+        var textEl = document.createElement('p');
+        textEl.className = 'panel-card-text';
+        textEl.textContent = note.text;
+
+        var delBtn = document.createElement('button');
+        delBtn.className = 'panel-card-del';
+        delBtn.setAttribute('aria-label', 'Remover nota');
+        delBtn.setAttribute('title', 'Remover');
+        delBtn.appendChild(makeDelSvg());
+
+        var clickTimer = null;
+
+        card.addEventListener('click', function(e) {
+          if (delBtn.contains(e.target)) return;
+          e.stopPropagation();
+          if (clickTimer !== null) return;
+          clickTimer = setTimeout(function() { clickTimer = null; self.selectNote(id); }, 220);
+        });
+        card.addEventListener('dblclick', function(e) {
+          if (delBtn.contains(e.target)) return;
+          e.stopPropagation();
+          if (clickTimer !== null) { clearTimeout(clickTimer); clickTimer = null; }
+          self.removeNote(id);
+        });
+        delBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          if (clickTimer !== null) { clearTimeout(clickTimer); clickTimer = null; }
+          self.removeNote(id);
+        });
+        card.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); self.selectNote(id); }
+          if (e.key === 'Delete') { self.removeNote(id); }
+        });
+
+        card.appendChild(textEl);
+        card.appendChild(delBtn);
+        return card;
+      },
+
+      // ── Card do quadro (maior, borda no topo) ─────────────────
+      createBoardCard: function(note) {
+        var self = this;
+        var id   = note.id;
+
+        var card = document.createElement('div');
+        card.className = 'board-card';
+        card.setAttribute('data-id', id);
+        card.setAttribute('role', 'article');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-label', 'Nota: ' + note.text);
+        card.style.setProperty('--note-bg', note.color.bg);
+        card.style.setProperty('--note-accent', note.color.accent);
+        card.style.background = note.color.bg;
+        card.style.left = (note.boardX || 20) + 'px';
+        card.style.top  = (note.boardY || 20) + 'px';
+
+        var textEl = document.createElement('p');
+        textEl.className = 'board-card-text';
+        textEl.textContent = note.text;
+
+        var delBtn = document.createElement('button');
+        delBtn.className = 'board-card-del';
+        delBtn.setAttribute('aria-label', 'Remover nota');
+        delBtn.setAttribute('title', 'Remover');
+        delBtn.appendChild(makeDelSvg());
+
+        var clickTimer = null;
+
+        card.addEventListener('mousedown', function(e) {
+          if (delBtn.contains(e.target)) return;
+          e.stopPropagation();
+          var p = screenToCanvas(e.clientX, e.clientY);
+          activeDragCard    = card;
+          activeDragNoteId  = id;
+          activeDragOffsetX = p.x - (parseFloat(card.style.left) || 0);
+          activeDragOffsetY = p.y - (parseFloat(card.style.top)  || 0);
+          activeDragHasMoved = false;
+          card.classList.add('dragging-card');
+        });
+
+        card.addEventListener('click', function(e) {
+          if (delBtn.contains(e.target)) return;
+          e.stopPropagation();
+          if (lastCardDragHasMoved) { lastCardDragHasMoved = false; return; }
+          if (clickTimer !== null) return;
+          clickTimer = setTimeout(function() { clickTimer = null; self.selectNote(id); }, 220);
+        });
+        card.addEventListener('dblclick', function(e) {
+          if (delBtn.contains(e.target)) return;
+          e.stopPropagation();
+          if (clickTimer !== null) { clearTimeout(clickTimer); clickTimer = null; }
+          self.removeNote(id);
+        });
+        delBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          if (clickTimer !== null) { clearTimeout(clickTimer); clickTimer = null; }
+          self.removeNote(id);
+        });
+        card.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); self.selectNote(id); }
+          if (e.key === 'Delete') { self.removeNote(id); }
+        });
+
+        card.appendChild(textEl);
+        card.appendChild(delBtn);
+        return card;
+      },
+
+      updateCounters: function() {
+        var n = this.notes.length;
+        var label = n + ' nota' + (n !== 1 ? 's' : '');
+        panelCounter.textContent = label;
+        boardCount.textContent   = label;
+      },
+
+      updateEmpties: function() {
+        var empty = this.notes.length === 0;
+        panelEmpty.classList.toggle('hidden', !empty);
+        boardEmpty.classList.toggle('hidden', !empty);
+      },
+    };
+
+    // Deselect ao clicar fora dos cards
+    document.addEventListener('click', function() { NoteManager.clearSelection(); });
+  </script>
+</body>
+</html>
