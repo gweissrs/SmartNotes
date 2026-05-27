@@ -1,0 +1,28 @@
+/* === 9. ANIMAÇÕES === */
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(-6px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes cardOut {
+  0%   { opacity: 1; max-height: 300px; transform: scale(1); }
+  100% { opacity: 0; max-height: 0; transform: scale(.95); padding-top: 0; padding-bottom: 0; margin: 0; border-width: 0; }
+}
+
+/* === 10. UTILS === */
+.hidden { display: none !important; }
+
+/* === 11. RESPONSIVO === */
+@media (max-width: 768px) {
+  #gc-nav { width: 0; min-width: 0; opacity: 0; pointer-events: none; }
+  #gc-nav.open { width: var(--nav-w); min-width: var(--nav-w); opacity: 1; pointer-events: auto; }
+  :root { --panel-w: 100vw; }
+}
+
+/* === 13. ACESSIBILIDADE === */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

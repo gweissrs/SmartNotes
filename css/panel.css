@@ -1,0 +1,350 @@
+/* === 5. BOTÃO TRIGGER === */
+.ext-trigger {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  background: var(--primary);
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,.24), 0 2px 4px rgba(0,0,0,.16);
+  transition: background .2s, box-shadow .2s, transform .15s;
+  z-index: 100;
+}
+.ext-trigger:hover { background: var(--primary-dark); box-shadow: 0 6px 12px rgba(0,0,0,.26); }
+.ext-trigger:active { transform: scale(.95); }
+
+/* === 6. BACKDROP === */
+.ext-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.18);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s var(--ease);
+}
+.ext-backdrop.visible { opacity: 1; pointer-events: auto; }
+
+/* === 7. PAINEL EXTENSÃO === */
+.ext-panel {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: var(--panel-w);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  z-index: 300;
+  box-shadow: -4px 0 24px rgba(0,0,0,.14);
+  transform: translateX(100%);
+  transition: transform .3s var(--ease);
+}
+.ext-panel.open { transform: translateX(0); }
+
+/* --- Header do painel --- */
+.panel-header {
+  height: 64px;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  padding: 0 8px 0 20px;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.panel-header-icon {
+  width: 30px; height: 30px;
+  background: rgba(255,255,255,.2);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.panel-title { color: #fff; font-size: 1rem; font-weight: 500; flex: 1; }
+.panel-count {
+  background: rgba(255,255,255,.2);
+  color: #fff;
+  font-size: .75rem;
+  font-weight: 500;
+  padding: 2px 9px;
+  border-radius: 12px;
+}
+.panel-icon-btn {
+  width: 38px; height: 38px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+  flex-shrink: 0;
+}
+.panel-icon-btn:hover { background: rgba(255,255,255,.15); }
+
+/* --- Lista de notas no painel --- */
+.notes-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 14px 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--outline) transparent;
+}
+.notes-list::-webkit-scrollbar { width: 5px; }
+.notes-list::-webkit-scrollbar-thumb { background: var(--outline); border-radius: 3px; }
+
+/* Empty state do painel */
+#panel-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 24px;
+  text-align: center;
+  gap: 10px;
+}
+#panel-empty.hidden { display: none; }
+.empty-icon  { font-size: 2.8rem; opacity: .4; display: block; }
+.empty-title { font-size: .95rem; font-weight: 500; color: var(--text); }
+.empty-sub   { font-size: .8rem; color: var(--text-2); line-height: 1.5; }
+
+/* Panel note card */
+.panel-card {
+  background: var(--note-bg, #fff);
+  border: 1px solid var(--outline);
+  border-left: 4px solid var(--note-accent, #1a73e8);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  position: relative;
+  cursor: pointer;
+  transition: box-shadow .2s, transform .2s;
+  animation: cardIn .22s var(--ease) forwards;
+  word-break: break-word;
+}
+.panel-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+.panel-card.selected {
+  box-shadow: 0 0 0 2px var(--primary), 0 4px 14px rgba(26,115,232,.18);
+  transform: translateY(-1px);
+}
+.panel-card.removing {
+  animation: cardOut .22s var(--ease) forwards;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.panel-card-text {
+  font-size: .875rem;
+  color: var(--text);
+  line-height: 1.55;
+  white-space: pre-wrap;
+  padding-right: 56px;
+}
+
+.panel-card-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.panel-card:hover .panel-card-actions { opacity: 1; }
+
+.panel-card-del,
+.panel-card-edit {
+  width: 26px; height: 26px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, color .15s;
+  flex-shrink: 0;
+}
+.panel-card-edit:hover { background: var(--primary-light); color: var(--primary); }
+.panel-card-del:hover  { background: var(--danger-bg); color: var(--danger); }
+
+.panel-card-edit-area {
+  width: 100%;
+  border: 1px solid var(--primary);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: .875rem;
+  color: var(--text);
+  resize: none;
+  outline: none;
+  min-height: 60px;
+  background: var(--surface);
+  line-height: 1.5;
+  box-shadow: 0 0 0 3px rgba(26,115,232,.12);
+  margin-top: 4px;
+}
+.panel-card-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+/* === 8. FAB + FORMULÁRIO === */
+.panel-fab {
+  position: absolute;
+  bottom: 20px; right: 20px;
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  background: var(--primary);
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 6px rgba(0,0,0,.2), 0 6px 10px rgba(0,0,0,.14);
+  transition: background .2s, box-shadow .2s, transform .15s;
+  z-index: 5;
+}
+.panel-fab:hover { background: var(--primary-dark); box-shadow: 0 5px 10px rgba(0,0,0,.22); }
+.panel-fab:active { transform: scale(.95); }
+
+.add-form {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--outline);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,.07);
+  transform: translateY(100%);
+  transition: transform .3s var(--ease);
+  z-index: 10;
+}
+.add-form.open { transform: translateY(0); }
+
+.form-row { display: flex; align-items: center; gap: 8px; }
+.form-label { font-size: .75rem; color: var(--text-2); font-weight: 500; white-space: nowrap; }
+
+.color-picker { display: flex; gap: 6px; align-items: center; }
+.color-dot {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform .15s, border-color .15s, box-shadow .15s;
+  flex-shrink: 0;
+}
+.color-dot:hover { transform: scale(1.18); }
+.color-dot.active { border-color: #333; box-shadow: 0 0 0 1px #fff inset; transform: scale(1.1); }
+
+#note-input {
+  width: 100%;
+  border: 1px solid var(--outline);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: .875rem;
+  color: var(--text);
+  outline: none;
+  min-height: 80px;
+  max-height: 160px;
+  overflow-y: auto;
+  background: var(--surface-2);
+  transition: border-color .15s, box-shadow .15s, background .15s;
+  line-height: 1.5;
+  cursor: text;
+}
+#note-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(26,115,232,.12);
+  background: var(--surface);
+}
+#note-input:empty::before {
+  content: 'Digite sua nota... (Enter para salvar, Shift+Enter para nova linha)';
+  color: #9aa0a6;
+  pointer-events: none;
+}
+
+/* Formatação de texto */
+.format-controls { display: flex; align-items: center; gap: 2px; }
+.format-btn {
+  width: 28px; height: 28px;
+  border: none; background: transparent;
+  border-radius: 4px; cursor: pointer;
+  font-family: inherit; font-size: .82rem;
+  color: var(--text);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 1px; padding: 0;
+  transition: background .15s;
+}
+.format-btn:hover { background: var(--surface-3); }
+.fmt-a-text { font-size: .82rem; font-weight: 700; line-height: 1; }
+.fmt-color-bar { width: 14px; height: 3px; border-radius: 1px; background: #000; }
+.format-color-wrap { position: relative; }
+.fmt-color-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%; transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--outline);
+  border-radius: 8px;
+  padding: 8px; gap: 6px;
+  display: none; flex-wrap: wrap;
+  width: 124px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.13);
+  z-index: 600;
+}
+.fmt-color-dropdown.open { display: flex; }
+.fmt-color-dot {
+  width: 22px; height: 22px;
+  border-radius: 50%; cursor: pointer;
+  border: 2px solid transparent; padding: 0;
+  transition: transform .15s, border-color .15s;
+}
+.fmt-color-dot:hover { transform: scale(1.15); }
+.fmt-color-dot.active { border-color: rgba(0,0,0,.4); }
+
+#error-msg { font-size: .75rem; color: var(--danger); min-height: 14px; }
+
+.form-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.btn-ghost {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: .875rem;
+  font-weight: 500;
+  color: var(--text-2);
+  transition: background .15s;
+}
+.btn-ghost:hover { background: var(--surface-3); }
+.btn-solid {
+  padding: 8px 20px;
+  border: none;
+  background: var(--primary);
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: .875rem;
+  font-weight: 500;
+  color: #fff;
+  transition: background .15s, box-shadow .15s;
+}
+.btn-solid:hover { background: var(--primary-dark); box-shadow: 0 1px 4px rgba(0,0,0,.2); }

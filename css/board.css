@@ -1,0 +1,290 @@
+/* View: Quadro */
+#view-quadro { overflow: hidden; }
+
+.quadro-topbar {
+  padding: 20px 24px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--outline);
+  background: var(--surface);
+}
+.quadro-topbar h2 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--text);
+}
+.quadro-count {
+  font-size: .8rem;
+  color: var(--text-2);
+  background: var(--surface-3);
+  border: 1px solid var(--outline);
+  border-radius: 12px;
+  padding: 2px 10px;
+}
+.quadro-add-btn {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: .85rem;
+  font-weight: 500;
+  transition: background .15s, box-shadow .15s;
+}
+.quadro-add-btn:hover { background: var(--primary-dark); box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+
+/* Controles de zoom */
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--outline);
+  border-radius: 8px;
+  padding: 3px 4px;
+}
+.zoom-btn {
+  width: 28px; height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  color: var(--text-2);
+  font-size: 1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, color .15s;
+  line-height: 1;
+}
+.zoom-btn:hover { background: var(--surface-3); color: var(--text); }
+.zoom-level {
+  font-size: .78rem;
+  color: var(--text-2);
+  min-width: 38px;
+  text-align: center;
+  font-weight: 500;
+  user-select: none;
+}
+.zoom-divider { width: 1px; height: 16px; background: var(--outline); margin: 0 2px; }
+.zoom-btn:disabled { opacity: .35; cursor: default; pointer-events: none; }
+
+/* Menus do quadro */
+.quadro-menus {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 4px;
+}
+.quadro-menu-trigger { position: relative; }
+.quadro-menu-btn {
+  padding: 5px 9px;
+  border: none;
+  background: transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: .8rem;
+  font-weight: 500;
+  color: var(--text);
+  transition: background .15s;
+  white-space: nowrap;
+}
+.quadro-menu-btn:hover,
+.quadro-menu-btn.open { background: var(--surface-3); }
+.quadro-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 230px;
+  background: var(--surface);
+  border: 1px solid var(--outline);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.13);
+  padding: 4px;
+  z-index: 600;
+  display: none;
+}
+.quadro-dropdown.open { display: block; }
+.quadro-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: .82rem;
+  color: var(--text);
+  transition: background .15s;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+.quadro-dropdown-item:hover { background: var(--surface-3); }
+.quadro-dropdown-item.danger { color: var(--danger); }
+.quadro-dropdown-item.danger:hover { background: var(--danger-bg); }
+.quadro-dropdown-item .qdrop-shortcut {
+  margin-left: auto;
+  font-size: .73rem;
+  color: var(--text-2);
+  opacity: .8;
+}
+.quadro-dropdown-item .qdrop-icon { width: 16px; text-align: center; flex-shrink: 0; }
+.quadro-dropdown-sep { height: 1px; background: var(--outline); margin: 4px 0; }
+.quadro-topbar-sep { width: 1px; height: 20px; background: var(--outline); margin: 0 6px; flex-shrink: 0; }
+
+/* Board viewport – captura wheel e drag */
+#board-grid {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  background-image: radial-gradient(circle, #c8c8c8 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-color: var(--surface-3);
+  cursor: grab;
+  user-select: none;
+}
+#board-grid.dragging { cursor: grabbing; }
+
+/* Canvas transformável — posicionamento livre */
+#board-canvas {
+  position: relative;
+  width: 4000px;
+  height: 3000px;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* Empty state — fixo no centro do viewport */
+#board-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  pointer-events: none;
+}
+#board-empty.hidden { display: none; }
+.board-empty-icon  { font-size: 3rem; opacity: .35; display: block; }
+.board-empty-title { font-size: 1rem; font-weight: 500; color: var(--text); }
+.board-empty-sub   { font-size: .85rem; color: var(--text-2); line-height: 1.5; }
+
+/* Board card — posição absoluta, arrastável */
+.board-card {
+  position: absolute;
+  width: 220px;
+  background: var(--note-bg, #fff);
+  border: 1px solid rgba(0,0,0,.07);
+  border-top: 4px solid var(--note-accent, #1a73e8);
+  border-radius: var(--radius);
+  padding: 14px;
+  cursor: grab;
+  min-height: 90px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  transition: box-shadow .2s;
+  animation: cardIn .2s var(--ease) forwards;
+  word-break: break-word;
+}
+.board-card:hover  { box-shadow: 0 6px 16px rgba(0,0,0,.14); }
+.board-card.dragging-card { cursor: grabbing; box-shadow: 0 12px 28px rgba(0,0,0,.22); z-index: 999 !important; transition: none; }
+.board-card.selected {
+  box-shadow: 0 0 0 2px var(--primary), 0 6px 18px rgba(26,115,232,.22);
+}
+.board-card.removing {
+  animation: cardOut .22s var(--ease) forwards;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.board-card-text {
+  font-size: .875rem;
+  color: var(--text);
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.board-card-toolbar {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--outline);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s;
+  z-index: 10;
+}
+.board-card-toolbar-buttons { display: flex; gap: 2px; }
+.board-card-toolbar-btn {
+  width: 28px; height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, color .15s;
+}
+.board-card-toolbar-btn:hover      { background: var(--surface-3); }
+.board-card-toolbar-btn.edit:hover { background: var(--primary-light); color: var(--primary); }
+.board-card-toolbar-btn.del:hover  { background: var(--danger-bg); color: var(--danger); }
+.board-card-color-row {
+  display: none;
+  gap: 6px;
+  padding: 6px 2px 2px;
+  border-top: 1px solid var(--outline);
+  margin-top: 4px;
+  justify-content: center;
+}
+.board-card-color-row.open { display: flex; }
+.board-card-color-swatch {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform .15s, border-color .15s;
+  flex-shrink: 0;
+}
+.board-card-color-swatch:hover { transform: scale(1.2); }
+.board-card-color-swatch.active { border-color: rgba(0,0,0,.35); }
+
+.board-card-resize {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  cursor: se-resize;
+  color: rgba(0,0,0,.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: color .15s;
+  flex-shrink: 0;
+}
+.board-card:hover .board-card-resize { color: rgba(0,0,0,.42); }
+.board-card-resize:hover { color: rgba(0,0,0,.65) !important; }

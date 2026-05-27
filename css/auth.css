@@ -1,0 +1,389 @@
+/* ============================================================
+   AUTH.CSS — Login e Cadastro · Estilo Google Classroom
+   ============================================================ */
+
+/* ── Base ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body.auth-page {
+  font-family: 'Roboto', -apple-system, sans-serif;
+  background: #f1f3f4;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  color: #202124;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Layout central ───────────────────────────────────────── */
+.auth-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+/* ── Card principal ───────────────────────────────────────── */
+.auth-card {
+  width: 450px;
+  max-width: 100%;
+  background: #fff;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  padding: 48px 40px 36px;
+  animation: authCardIn .22s ease forwards;
+}
+
+@keyframes authCardIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Logo / Identidade ────────────────────────────────────── */
+.auth-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.auth-brand-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a73e8, #0d47a1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(26,115,232,.35);
+}
+
+.auth-brand-name {
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #202124;
+  letter-spacing: -.25px;
+}
+.auth-brand-name b {
+  background: rgba(26,115,232,.1);
+  color: #1a73e8;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: .65rem;
+  margin-left: 4px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  vertical-align: middle;
+}
+
+/* ── Títulos ──────────────────────────────────────────────── */
+.auth-title {
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #202124;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.auth-subtitle {
+  font-size: .875rem;
+  color: #5f6368;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* ── Campo com label flutuante ────────────────────────────── */
+.auth-field {
+  position: relative;
+  margin-bottom: 22px;
+}
+
+.auth-field input {
+  width: 100%;
+  height: 56px;
+  border: 1.5px solid #dadce0;
+  border-radius: 4px;
+  padding: 16px 44px 0 12px; /* top extra p/ label flutuar */
+  font-size: 1rem;
+  font-family: inherit;
+  color: #202124;
+  background: transparent;
+  outline: none;
+  transition: border-color .18s;
+  caret-color: #1a73e8;
+}
+
+.auth-field input:focus {
+  border-color: #1a73e8;
+  border-width: 2px;
+  padding-left: 11px; /* compensar 1px extra */
+}
+
+.auth-field label {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  color: #5f6368;
+  pointer-events: none;
+  transition: top .15s, font-size .15s, color .15s;
+  background: #fff;
+  padding: 0 3px;
+  line-height: 1;
+}
+
+/* Label flutua quando foco ou preenchido (placeholder=" ") */
+.auth-field input:focus ~ label,
+.auth-field input:not(:placeholder-shown) ~ label {
+  top: 0;
+  font-size: .72rem;
+  color: #5f6368;
+}
+.auth-field input:focus ~ label { color: #1a73e8; }
+
+/* Estado de erro no campo */
+.auth-field.has-error input { border-color: #d93025; }
+.auth-field.has-error input:focus { border-color: #d93025; }
+.auth-field.has-error label,
+.auth-field.has-error input:focus ~ label,
+.auth-field.has-error input:not(:placeholder-shown) ~ label { color: #d93025; }
+
+.auth-field-msg {
+  font-size: .72rem;
+  margin-top: 5px;
+  padding-left: 12px;
+  min-height: 16px;
+  color: #d93025;
+  display: none;
+}
+.auth-field.has-error .auth-field-msg { display: block; }
+
+/* ── Botão mostrar/ocultar senha ──────────────────────────── */
+.auth-pwd-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px; height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #5f6368;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, color .15s;
+  flex-shrink: 0;
+}
+.auth-pwd-toggle:hover { background: #f1f3f4; color: #202124; }
+
+/* ── Fileira de dois campos (nome/sobrenome) ──────────────── */
+.auth-row-2 {
+  display: flex;
+  gap: 16px;
+}
+.auth-row-2 .auth-field { flex: 1; }
+
+/* ── Link "Esqueceu a senha?" ─────────────────────────────── */
+.auth-forgot {
+  display: block;
+  font-size: .875rem;
+  color: #1a73e8;
+  text-decoration: none;
+  margin: -10px 0 20px;
+  transition: color .15s;
+}
+.auth-forgot:hover { color: #1557b0; text-decoration: underline; }
+
+/* ── Mensagem de erro global ──────────────────────────────── */
+.auth-alert {
+  display: none;
+  align-items: flex-start;
+  gap: 10px;
+  background: #fce8e6;
+  border-radius: 4px;
+  border: 1px solid #f5c6c2;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  font-size: .84rem;
+  color: #c5221f;
+  line-height: 1.5;
+}
+.auth-alert.visible { display: flex; }
+.auth-alert-icon { flex-shrink: 0; font-size: 1rem; margin-top: 1px; }
+
+/* ── Separador ────────────────────────────────────────────── */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0 20px;
+  color: #dadce0;
+  font-size: .75rem;
+  color: #9aa0a6;
+}
+.auth-divider::before, .auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #dadce0;
+}
+
+/* ── Ações (link esquerda + botão direita) ────────────────── */
+.auth-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 32px;
+  gap: 12px;
+}
+
+/* Botão-link (ex: "Criar conta") */
+.auth-btn-ghost {
+  font-size: .875rem;
+  font-weight: 500;
+  color: #1a73e8;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  padding: 0 8px;
+  height: 36px;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  transition: background .15s, color .15s;
+  flex-shrink: 0;
+}
+.auth-btn-ghost:hover { background: #e8f0fe; }
+
+/* Botão primário azul */
+.auth-btn-primary {
+  padding: 0 24px;
+  height: 36px;
+  background: #1a73e8;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: .875rem;
+  font-weight: 500;
+  letter-spacing: .25px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background .15s, box-shadow .15s;
+  flex-shrink: 0;
+}
+.auth-btn-primary:hover {
+  background: #1557b0;
+  box-shadow: 0 1px 6px rgba(0,0,0,.25);
+}
+.auth-btn-primary:disabled {
+  background: #a8c7fa;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ── Indicador de força da senha ──────────────────────────── */
+.auth-pwd-strength {
+  margin-top: 6px;
+  padding-left: 12px;
+}
+.auth-pwd-strength-bar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.auth-pwd-strength-seg {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: #dadce0;
+  transition: background .3s;
+}
+.auth-pwd-strength-seg.weak   { background: #ea4335; }
+.auth-pwd-strength-seg.fair   { background: #fbbc04; }
+.auth-pwd-strength-seg.good   { background: #34a853; }
+.auth-pwd-strength-label {
+  font-size: .7rem;
+  color: #5f6368;
+}
+
+/* ── Modal "Esqueceu a senha?" ────────────────────────────── */
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.32);
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.auth-modal-overlay.open { opacity: 1; pointer-events: auto; }
+.auth-modal {
+  background: #fff;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 95vw;
+  padding: 32px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.22);
+  transform: scale(.95);
+  transition: transform .2s;
+}
+.auth-modal-overlay.open .auth-modal { transform: scale(1); }
+.auth-modal h3 { font-size: 1.1rem; font-weight: 500; margin-bottom: 8px; }
+.auth-modal p  { font-size: .875rem; color: #5f6368; margin-bottom: 20px; line-height: 1.5; }
+.auth-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
+/* ── Rodapé ───────────────────────────────────────────────── */
+.auth-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.auth-footer-lang {
+  font-size: .75rem;
+  color: #5f6368;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 6px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: background .15s;
+}
+.auth-footer-lang:hover { background: #e8eaed; }
+.auth-footer-links {
+  display: flex;
+  gap: 20px;
+}
+.auth-footer-link {
+  font-size: .75rem;
+  color: #5f6368;
+  text-decoration: none;
+  transition: color .15s;
+}
+.auth-footer-link:hover { color: #202124; text-decoration: underline; }
+
+/* ── Responsivo ───────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .auth-card { padding: 36px 24px 28px; }
+  .auth-row-2 { flex-direction: column; gap: 0; }
+  .auth-footer { justify-content: center; }
+}
