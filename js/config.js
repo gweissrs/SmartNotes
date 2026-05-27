@@ -12,5 +12,5 @@
 
   window.SN_API_BASE = isLocal
     ? 'http://localhost:3001/api'
-    : 'https://SEU-PROJETO.up.railway.app/api'; // ← atualizar após deploy no Railway
+    : 'https://smartnotes-production.up.railway.app/api';
 })();
