@@ -1,5 +1,28 @@
 'use strict';
 
+function sanitizeContent(html) {
+  if (!html) return '';
+  var doc = document.implementation.createHTMLDocument('');
+  doc.body.innerHTML = html;
+  doc.body.querySelectorAll('script,style,iframe,object,embed,form,input,button').forEach(function(el) { el.remove(); });
+  doc.body.querySelectorAll('*').forEach(function(el) {
+    Array.from(el.attributes).forEach(function(attr) {
+      if (/^on/i.test(attr.name) ||
+          (/^(href|src|action)$/i.test(attr.name) && /^javascript:/i.test(attr.value))) {
+        el.removeAttribute(attr.name);
+      }
+    });
+  });
+  return doc.body.innerHTML;
+}
+
+function htmlToPlainText(html) {
+  if (!html) return '';
+  var tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return tmp.textContent || '';
+}
+
 // ── Task Notes (seção Tarefas) ────────────────────────────────
 var taskNotes       = [];
 var activeTaskNoteId = null;
@@ -21,9 +44,11 @@ function saveActiveTaskNote() {
   if (!activeTaskNoteId) return;
   var note = getTaskNoteById(activeTaskNoteId);
   if (!note) return;
-  note.title = tnoteEditorTitle.value.trim();
+  note.title   = tnoteEditorTitle.value.trim();
   note.content = tnoteEditorBody.innerHTML;
   note.updatedAt = new Date();
+  API.updateTaskNote(note.id, { title: note.title, content: note.content })
+    .catch(function(err) { console.warn('[TaskNotes] save falhou:', err); });
 }
 
 function renderTaskGrid() {
@@ -54,7 +79,7 @@ function renderTaskGrid() {
 
     var previewText = document.createElement('div');
     previewText.className = 'tnote-preview-text';
-    previewText.innerHTML = note.content || '';
+    previewText.textContent = htmlToPlainText(note.content || '');
 
     preview.appendChild(lines);
     preview.appendChild(previewTitle);
@@ -87,7 +112,7 @@ function openTaskNote(id) {
   if (!note) return;
   activeTaskNoteId = id;
   tnoteEditorTitle.value = note.title;
-  tnoteEditorBody.innerHTML = note.content || '';
+  tnoteEditorBody.innerHTML = sanitizeContent(note.content || '');
   tnoteEditor.classList.add('open');
   setTimeout(function() { tnoteEditorBody.focus(); }, 300);
 }
@@ -99,7 +124,9 @@ function closeTaskEditor() {
   if (note) {
     var plain = note.content.replace(/<[^>]*>/g, '').trim();
     if (!note.title && !plain) {
-      taskNotes = taskNotes.filter(function(n) { return n.id !== note.id; });
+      var id = note.id;
+      taskNotes = taskNotes.filter(function(n) { return n.id !== id; });
+      API.deleteTaskNote(id).catch(function() {});
     }
   }
   tnoteEditor.classList.remove('open');
@@ -113,13 +140,28 @@ function scheduleAutoSave() {
 }
 
 document.getElementById('btn-add-tnote').addEventListener('click', function() {
-  var note = {
-    id: crypto.randomUUID(), title: '', content: '',
-    createdAt: new Date(), updatedAt: new Date()
-  };
-  taskNotes.unshift(note);
-  openTaskNote(note.id);
-  setTimeout(function() { tnoteEditorTitle.focus(); }, 310);
+  API.createTaskNote({ title: '', content: '' })
+    .then(function(apiNote) {
+      var note = {
+        id:        apiNote.id,
+        title:     apiNote.title    || '',
+        content:   apiNote.content  || '',
+        createdAt: new Date(apiNote.createdAt),
+        updatedAt: new Date(apiNote.updatedAt),
+      };
+      taskNotes.unshift(note);
+      openTaskNote(note.id);
+      setTimeout(function() { tnoteEditorTitle.focus(); }, 310);
+    })
+    .catch(function() {
+      var note = {
+        id: crypto.randomUUID(), title: '', content: '',
+        createdAt: new Date(), updatedAt: new Date()
+      };
+      taskNotes.unshift(note);
+      openTaskNote(note.id);
+      setTimeout(function() { tnoteEditorTitle.focus(); }, 310);
+    });
 });
 
 document.getElementById('btn-tnote-back').addEventListener('click', closeTaskEditor);
@@ -127,10 +169,14 @@ document.getElementById('btn-tnote-back').addEventListener('click', closeTaskEdi
 document.getElementById('btn-tnote-del').addEventListener('click', function() {
   if (!activeTaskNoteId) return;
   if (!confirm('Excluir esta nota?')) return;
-  taskNotes = taskNotes.filter(function(n) { return n.id !== activeTaskNoteId; });
+  var id = activeTaskNoteId;
+  taskNotes = taskNotes.filter(function(n) { return n.id !== id; });
   tnoteEditor.classList.remove('open');
   activeTaskNoteId = null;
   renderTaskGrid();
+  API.deleteTaskNote(id).catch(function(err) {
+    console.warn('[TaskNotes] delete falhou:', err);
+  });
 });
 
 tnoteEditorTitle.addEventListener('input', scheduleAutoSave);
@@ -139,7 +185,23 @@ tnoteEditorTitle.addEventListener('keydown', function(e) {
   if (e.key === 'Enter') { e.preventDefault(); tnoteEditorBody.focus(); }
 });
 
-renderTaskGrid();
+API.getTaskNotes()
+  .then(function(result) {
+    var apiNotes = result.items || result || [];
+    taskNotes = apiNotes.map(function(n) {
+      return {
+        id:        n.id,
+        title:     n.title   || '',
+        content:   n.content || '',
+        createdAt: new Date(n.createdAt),
+        updatedAt: new Date(n.updatedAt),
+      };
+    });
+    renderTaskGrid();
+  })
+  .catch(function() {
+    renderTaskGrid();
+  });
 
 // Formatação no editor de notas
 var tnoteFmtDropdown = document.getElementById('tnote-fmt-dropdown');

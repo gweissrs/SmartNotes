@@ -133,40 +133,6 @@ function initLoginPage() {
     hideAlert('login-alert');
   });
 
-  /* ── Modal esqueceu a senha ─── */
-  var overlay         = document.getElementById('forgot-overlay');
-  var btnForgot       = document.getElementById('btn-forgot');
-  var btnForgotCancel = document.getElementById('btn-forgot-cancel');
-  var btnForgotSend   = document.getElementById('btn-forgot-send');
-  var forgotEmail     = document.getElementById('forgot-email');
-  var forgotSuccess   = document.getElementById('forgot-success');
-
-  if (btnForgot) btnForgot.addEventListener('click', function(e) {
-    e.preventDefault();
-    if (forgotEmail && emailInput) forgotEmail.value = emailInput.value;
-    if (forgotSuccess) forgotSuccess.style.display = 'none';
-    setFieldError('field-forgot-email', 'forgot-email-msg', '');
-    if (overlay) overlay.classList.add('open');
-    setTimeout(function() { if (forgotEmail) forgotEmail.focus(); }, 120);
-  });
-
-  function closeForgot() { if (overlay) overlay.classList.remove('open'); }
-  if (btnForgotCancel) btnForgotCancel.addEventListener('click', closeForgot);
-  if (overlay) overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) closeForgot();
-  });
-  if (btnForgotSend) btnForgotSend.addEventListener('click', function() {
-    var email = forgotEmail ? forgotEmail.value.trim() : '';
-    if (!isValidEmail(email)) {
-      setFieldError('field-forgot-email', 'forgot-email-msg', 'Informe um e-mail válido.');
-      return;
-    }
-    setFieldError('field-forgot-email', 'forgot-email-msg', '');
-    if (forgotSuccess) { forgotSuccess.style.display = 'flex'; }
-    btnForgotSend.disabled = true;
-    setTimeout(closeForgot, 2500);
-  });
-
   /* ── Submit ─── */
   form.addEventListener('submit', function(e) {
     e.preventDefault();

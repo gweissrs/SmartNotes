@@ -32,7 +32,8 @@ router.get('/boards/:boardId/notes', auth, async function(req, res) {
     }
 
     const result = await pool.query(
-      `SELECT * FROM notes
+      `SELECT id, board_id, user_id, text, color_idx, board_x, board_y, board_w, board_h, created_at
+       FROM notes
        WHERE board_id = $1 AND user_id = $2
        ORDER BY created_at ASC`,
       [req.params.boardId, req.userId]
@@ -62,7 +63,7 @@ router.post('/boards/:boardId/notes', auth, async function(req, res) {
     const result = await pool.query(
       `INSERT INTO notes (board_id, user_id, text, color_idx, board_x, board_y, board_w, board_h)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING *`,
+       RETURNING id, board_id, user_id, text, color_idx, board_x, board_y, board_w, board_h, created_at`,
       [
         req.params.boardId,
         req.userId,
@@ -76,6 +77,7 @@ router.post('/boards/:boardId/notes', auth, async function(req, res) {
     );
 
     res.status(201).json(fmtNote(result.rows[0]));
+
 
   } catch (err) {
     console.error('[Notes] Create error:', err.message);
@@ -107,7 +109,7 @@ router.patch('/notes/:id', auth, async function(req, res) {
     const result = await pool.query(
       `UPDATE notes SET ${setClauses.join(', ')}
        WHERE id = $${idx++} AND user_id = $${idx++}
-       RETURNING *`,
+       RETURNING id, board_id, user_id, text, color_idx, board_x, board_y, board_w, board_h, created_at`,
       values
     );
 

@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fazer login — SmartNotes</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -79,9 +80,6 @@
           <span class="auth-field-msg" id="password-msg" aria-live="polite"></span>
         </div>
 
-        <!-- Esqueceu a senha -->
-        <a href="#" class="auth-forgot" id="btn-forgot">Esqueceu a senha?</a>
-
         <!-- Ações -->
         <div class="auth-actions">
           <a href="cadastro.html" class="auth-btn-ghost">Criar conta</a>
@@ -113,37 +111,6 @@
       <a href="#" class="auth-footer-link">Termos</a>
     </div>
   </footer>
-
-  <!-- ── Modal "Esqueceu a senha?" ──────────────────────────── -->
-  <div class="auth-modal-overlay" id="forgot-overlay" role="dialog" aria-modal="true" aria-labelledby="forgot-title">
-    <div class="auth-modal">
-      <h3 id="forgot-title">Recuperar senha</h3>
-      <p>Informe o e-mail cadastrado. Se ele existir em nossa base, enviaremos instruções de redefinição.</p>
-
-      <div class="auth-field" id="field-forgot-email">
-        <input
-          type="email"
-          id="forgot-email"
-          placeholder=" "
-          autocomplete="email"
-          inputmode="email"
-        >
-        <label for="forgot-email">E-mail</label>
-        <span class="auth-field-msg" id="forgot-email-msg"></span>
-      </div>
-
-      <!-- Feedback de envio -->
-      <div class="auth-alert" id="forgot-success" style="background:#e6f4ea;border-color:#b7dfb8;color:#137333;display:none;">
-        <span class="auth-alert-icon">✅</span>
-        <span>Instruções enviadas! Verifique sua caixa de entrada.</span>
-      </div>
-
-      <div class="auth-modal-actions">
-        <button type="button" class="auth-btn-ghost" id="btn-forgot-cancel">Cancelar</button>
-        <button type="button" class="auth-btn-primary" id="btn-forgot-send">Enviar</button>
-      </div>
-    </div>
-  </div>
 
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>

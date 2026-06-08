@@ -1,17 +1,39 @@
 'use strict';
 require('dotenv').config();
 
-const express = require('express');
-const cors    = require('cors');
-const pool    = require('./db');
+var _missingEnv = ['JWT_SECRET', 'DATABASE_URL'].filter(function(k) { return !process.env[k]; });
+if (_missingEnv.length > 0) {
+  console.error('[FATAL] Variáveis de ambiente ausentes:', _missingEnv.join(', '));
+  process.exit(1);
+}
 
-const authRoutes    = require('./routes/auth.routes');
-const profileRoutes = require('./routes/profile.routes');
-const boardsRoutes  = require('./routes/boards.routes');
-const notesRoutes   = require('./routes/notes.routes');
+const express   = require('express');
+const cors      = require('cors');
+const path      = require('path');
+const helmet    = require('helmet');
+const rateLimit = require('express-rate-limit');
+const pool      = require('./db');
+
+const authRoutes      = require('./routes/auth.routes');
+const profileRoutes   = require('./routes/profile.routes');
+const boardsRoutes    = require('./routes/boards.routes');
+const notesRoutes     = require('./routes/notes.routes');
+const taskNotesRoutes = require('./routes/task_notes.routes');
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
+
+app.use(helmet({ contentSecurityPolicy: false }));
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Muitas tentativas. Aguarde 15 minutos.' },
+});
+app.use('/api/auth/login',    authLimiter);
+app.use('/api/auth/register', authLimiter);
 
 /* ── CORS ─────────────────────────────────────────────────────
    Em produção, ALLOWED_ORIGINS define quais domínios podem
@@ -55,10 +77,22 @@ app.get('/api/health', async function(_req, res) {
 });
 
 /* ── Rotas ────────────────────────────────────────────────── */
-app.use('/api/auth',    authRoutes);
-app.use('/api/profile', profileRoutes);
-app.use('/api/boards',  boardsRoutes);
-app.use('/api',         notesRoutes);
+app.use('/api/auth',        authRoutes);
+app.use('/api/profile',     profileRoutes);
+app.use('/api/boards',      boardsRoutes);
+app.use('/api/task-notes',  taskNotesRoutes);
+app.use('/api',             notesRoutes);
+
+/* ── Frontend estático ────────────────────────────────────── */
+const frontendDir = path.join(__dirname, '..', '..');
+app.use('/server', function(_req, res) {
+  res.status(403).json({ error: 'Acesso negado.' });
+});
+app.use(express.static(frontendDir, { index: false }));
+app.get('*', function(req, res, next) {
+  if (req.path.startsWith('/api')) return next();
+  res.sendFile(path.join(frontendDir, 'index.html'));
+});
 
 /* ── 404 ──────────────────────────────────────────────────── */
 app.use(function(_req, res) {

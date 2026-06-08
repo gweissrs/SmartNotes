@@ -106,6 +106,24 @@ var API = {
     return API._req('DELETE', '/notes/' + id);
   },
 
+  /* ── Task Notes ───────────────────────────────────────────── */
+  getTaskNotes: function(limit, offset) {
+    var qs = '?limit=' + (limit || 50) + '&offset=' + (offset || 0);
+    return API._req('GET', '/task-notes' + qs);
+  },
+
+  createTaskNote: function(data) {
+    return API._req('POST', '/task-notes', data);
+  },
+
+  updateTaskNote: function(id, data) {
+    return API._req('PATCH', '/task-notes/' + id, data);
+  },
+
+  deleteTaskNote: function(id) {
+    return API._req('DELETE', '/task-notes/' + id);
+  },
+
   /* ── Health check (testa se a API está acessível) ─────────── */
   health: function() {
     return fetch(API_BASE + '/health').then(function(r) { return r.json(); });
