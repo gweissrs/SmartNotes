@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartNotes</title>
+
+  <!-- Guard de autenticação: exige token JWT + session -->
+  <script>
+    (function() {
+      try {
+        var token = localStorage.getItem('snToken');
+        var s     = JSON.parse(localStorage.getItem('snSession') || 'null');
+        if (!token || !s || !s.email || !s.loggedAt) {
+          window.location.replace('login.html');
+        }
+      } catch (_) {
+        window.location.replace('login.html');
+      }
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/board.css">
+  <link rel="stylesheet" href="css/notes.css">
+  <link rel="stylesheet" href="css/calendar.css">
+  <link rel="stylesheet" href="css/panel.css">
+  <link rel="stylesheet" href="css/account.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+
+  <!-- ===================== PÁGINA PRINCIPAL ===================== -->
+  <div class="webpage">
+
+    <!-- Top bar -->
+    <div class="gc-bar">
+      <button id="btn-hamburger" aria-label="Abrir menu de navegação">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="gc-bar-logo">Smart<b>Notes</b></div>
+      <div class="gc-bar-search" id="gc-bar-search">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;opacity:.7"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="search-bar-input" type="text" placeholder="Pesquisar" autocomplete="off" spellcheck="false">
+        <span id="search-count" class="search-count"></span>
+      </div>
+      <!-- Avatar + menu de conta -->
+      <div class="avatar-wrap">
+        <div class="gc-bar-avatar" id="btn-avatar" role="button" tabindex="0" aria-label="Abrir menu de conta" aria-haspopup="true" aria-expanded="false">G</div>
+
+        <div class="account-menu" id="account-menu" role="menu" aria-label="Menu de conta">
+
+          <!-- Cabeçalho com info do usuário -->
+          <div class="acct-header">
+            <div class="acct-avatar-lg" id="acct-avatar-lg">G</div>
+            <div class="acct-name" id="acct-display-name">Guilherme</div>
+            <div class="acct-email" id="acct-display-email">guilhermewrsilva@gmail.com</div>
+            <button class="acct-manage-btn" id="btn-acct-edit-profile">Gerenciar conta</button>
+          </div>
+
+          <!-- Seção principal -->
+          <div class="acct-section">
+            <button class="acct-item" id="acct-item-profile" role="menuitem">
+              <span class="acct-item-icon">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              </span>
+              <span class="acct-item-label">Editar perfil</span>
+            </button>
+            <button class="acct-item" id="acct-item-theme" role="menuitem">
+              <span class="acct-item-icon">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+              </span>
+              <span class="acct-item-label">Aparência</span>
+              <span class="acct-item-badge" id="acct-theme-badge">Claro</span>
+            </button>
+          </div>
+
+          <!-- Seção dados -->
+          <div class="acct-section">
+            <button class="acct-item" id="acct-item-export" role="menuitem">
+              <span class="acct-item-icon">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </span>
+              <span class="acct-item-label">Exportar todos os dados</span>
+            </button>
+            <button class="acct-item" id="acct-item-clear-data" role="menuitem">
+              <span class="acct-item-icon">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              </span>
+              <span class="acct-item-label">Limpar todos os dados</span>
+            </button>
+          </div>
+
+          <!-- Seção sair -->
+          <div class="acct-section">
+            <button class="acct-item danger" id="acct-item-signout" role="menuitem">
+              <span class="acct-item-icon">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              </span>
+              <span class="acct-item-label">Sair</span>
+            </button>
+          </div>
+
+        </div>
+      </div><!-- /.avatar-wrap -->
+    </div>
+
+    <!-- Modal de edição de perfil -->
+    <div class="acct-modal-overlay" id="acct-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="acct-modal-title-txt">
+      <div class="acct-modal">
+        <div class="acct-modal-header">
+          <span id="acct-modal-title-txt" class="acct-modal-title">Editar perfil</span>
+          <button class="acct-modal-close" id="acct-modal-close" aria-label="Fechar">✕</button>
+        </div>
+        <div class="acct-modal-body">
+          <div class="acct-modal-avatar-row">
+            <div class="acct-modal-avatar-preview" id="acct-modal-avatar-preview">G</div>
+            <div class="acct-modal-avatar-info">
+              <div style="font-size:.82rem;font-weight:500;color:var(--text)">Cor do avatar</div>
+              <div class="acct-color-row" id="acct-color-row"></div>
+              <div class="acct-modal-avatar-hint">Escolha uma cor para o seu avatar</div>
+            </div>
+          </div>
+          <div class="acct-field">
+            <label for="acct-input-name">Nome de exibição</label>
+            <input type="text" id="acct-input-name" placeholder="Seu nome" maxlength="40">
+          </div>
+          <div class="acct-field">
+            <label for="acct-input-email">E-mail</label>
+            <input type="email" id="acct-input-email" placeholder="seu@email.com" maxlength="80">
+          </div>
+        </div>
+        <div class="acct-modal-footer">
+          <button class="btn-ghost" id="acct-modal-cancel">Cancelar</button>
+          <button class="btn-solid" id="acct-modal-save">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="gc-body">
+
+      <!-- Sidebar nav -->
+      <nav id="gc-nav" aria-label="Menu de navegação">
+
+        <div class="gc-nav-item active" data-view="tarefas">
+          <span class="gc-nav-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </span>
+          Notas
+        </div>
+
+        <div class="gc-nav-item" data-view="calendario">
+          <span class="gc-nav-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </span>
+          Calendário
+        </div>
+
+<div class="nav-section">
+          <div class="nav-section-header">
+            <span class="nav-section-title">Meus Quadros</span>
+            <button class="nav-section-add" id="btn-add-board" title="Novo quadro" aria-label="Criar novo quadro">+</button>
+          </div>
+          <div id="boards-list"></div>
+        </div>
+
+      </nav>
+
+      <!-- Main stream -->
+      <main class="gc-stream">
+        <!-- View: Quadro -->
+        <div id="view-quadro" class="view hidden">
+          <div class="quadro-topbar">
+            <h2 id="board-title">Quadro Principal</h2>
+            <span class="quadro-count" id="board-count">0 notas</span>
+
+            <div class="quadro-topbar-sep"></div>
+
+            <!-- Menus estilo Docs -->
+            <nav class="quadro-menus" aria-label="Menu do quadro">
+
+              <!-- Arquivo -->
+              <div class="quadro-menu-trigger">
+                <button class="quadro-menu-btn" data-menu="arquivo">Arquivo</button>
+                <div class="quadro-dropdown" id="menu-arquivo">
+                  <button class="quadro-dropdown-item" id="mi-export-txt">
+                    <span class="qdrop-icon">📄</span>Exportar como .txt
+                  </button>
+                  <button class="quadro-dropdown-item" id="mi-export-json">
+                    <span class="qdrop-icon">📦</span>Exportar como JSON
+                  </button>
+                  <button class="quadro-dropdown-item" id="mi-export-pdf">
+                    <span class="qdrop-icon">📑</span>Exportar como PDF
+                  </button>
+                  <button class="quadro-dropdown-item" id="mi-print">
+                    <span class="qdrop-icon">🖨️</span>Imprimir<span class="qdrop-shortcut">Ctrl+P</span>
+                  </button>
+                  <div class="quadro-dropdown-sep"></div>
+                  <button class="quadro-dropdown-item danger" id="mi-clear-all">
+                    <span class="qdrop-icon">🗑️</span>Limpar quadro
+                  </button>
+                </div>
+              </div>
+
+              <!-- Editar -->
+              <div class="quadro-menu-trigger">
+                <button class="quadro-menu-btn" data-menu="editar">Editar</button>
+                <div class="quadro-dropdown" id="menu-editar">
+                  <button class="quadro-dropdown-item" id="mi-select-all">
+                    <span class="qdrop-icon">☑️</span>Selecionar tudo<span class="qdrop-shortcut">Ctrl+A</span>
+                  </button>
+                  <button class="quadro-dropdown-item" id="mi-delete-selected">
+                    <span class="qdrop-icon">✂️</span>Apagar selecionada<span class="qdrop-shortcut">Del</span>
+                  </button>
+                </div>
+              </div>
+
+            </nav>
+
+            <div class="quadro-topbar-sep"></div>
+
+            <!-- Undo / Redo -->
+            <button class="zoom-btn" id="btn-undo" title="Desfazer (Ctrl+Z)" disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+            </button>
+            <button class="zoom-btn" id="btn-redo" title="Refazer (Ctrl+Y)" disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+            </button>
+
+            <div class="quadro-topbar-sep"></div>
+
+            <!-- Formatação de texto -->
+            <div class="format-controls">
+              <button class="format-btn" id="fmt-bold" title="Negrito (Ctrl+B)"><b>B</b></button>
+              <button class="format-btn" id="fmt-italic" title="Itálico (Ctrl+I)"><i style="font-style:italic">I</i></button>
+              <div class="format-color-wrap">
+                <button class="format-btn" id="fmt-color" title="Cor do texto">
+                  <span class="fmt-a-text">A</span>
+                  <span class="fmt-color-bar" id="fmt-color-bar"></span>
+                </button>
+                <div class="fmt-color-dropdown" id="fmt-color-dropdown"></div>
+              </div>
+            </div>
+
+            <div class="quadro-topbar-sep"></div>
+
+            <!-- Controles de zoom -->
+            <div class="zoom-controls" role="group" aria-label="Controles de zoom">
+              <button class="zoom-btn" id="btn-zoom-out" aria-label="Reduzir zoom" title="Reduzir (Ctrl+-)">−</button>
+              <span class="zoom-level" id="zoom-level">100%</span>
+              <button class="zoom-btn" id="btn-zoom-in" aria-label="Aumentar zoom" title="Aumentar (Ctrl++)">+</button>
+              <div class="zoom-divider"></div>
+              <button class="zoom-btn" id="btn-zoom-reset" aria-label="Resetar zoom" title="Resetar zoom (Ctrl+0)" style="font-size:.7rem;width:36px;">100%</button>
+            </div>
+            <button class="quadro-add-btn" id="btn-quadro-add" aria-label="Adicionar nota">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Nova nota
+            </button>
+          </div>
+          <div id="board-grid" role="region" aria-label="Quadro de notas">
+            <div id="board-canvas"></div>
+            <div id="board-empty" aria-live="polite">
+              <span class="board-empty-icon">📋</span>
+              <p class="board-empty-title">O quadro está vazio</p>
+              <p class="board-empty-sub">Clique em "Nova nota" ou no botão ✏️<br>para adicionar sua primeira nota</p>
+            </div>
+          </div><!-- /#board-grid -->
+        </div><!-- /#view-quadro -->
+
+        <!-- View: Notas (Tarefas) -->
+        <div id="view-tarefas" class="view">
+          <div class="tnotes-header">
+            <h2>Notas</h2>
+            <button class="tnotes-add-btn" id="btn-add-tnote" aria-label="Nova nota">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Nova nota
+            </button>
+          </div>
+          <div id="tnotes-grid" class="tnotes-grid"></div>
+          <!-- Editor slide-in -->
+          <div class="tnote-editor" id="tnote-editor">
+            <div class="tnote-editor-header">
+              <button class="tnote-back-btn" id="btn-tnote-back">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                Notas
+              </button>
+              <input class="tnote-editor-title" id="tnote-editor-title" type="text" placeholder="Título">
+              <button class="tnote-del-btn" id="btn-tnote-del" title="Excluir nota" aria-label="Excluir nota">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              </button>
+            </div>
+            <div class="tnote-format-bar">
+              <button class="tnote-fmt-btn" id="tnote-fmt-bold" title="Negrito (Ctrl+B)"><b>B</b></button>
+              <button class="tnote-fmt-btn" id="tnote-fmt-italic" title="Itálico (Ctrl+I)"><i style="font-style:italic">I</i></button>
+              <div class="tnote-fmt-sep"></div>
+              <div class="tnote-fmt-color-wrap">
+                <button class="tnote-fmt-btn" id="tnote-fmt-color" title="Cor do texto">
+                  <span style="font-weight:700;font-size:.82rem;line-height:1">A</span>
+                  <span class="tnote-fmt-color-bar" id="tnote-fmt-color-bar"></span>
+                </button>
+                <div class="tnote-fmt-dropdown" id="tnote-fmt-dropdown"></div>
+              </div>
+              <div class="tnote-fmt-sep"></div>
+              <button class="tnote-fmt-btn" id="tnote-fmt-al" title="Alinhar à esquerda">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="19" y2="18"/></svg>
+              </button>
+              <button class="tnote-fmt-btn" id="tnote-fmt-ac" title="Centralizar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="5" y1="18" x2="19" y2="18"/></svg>
+              </button>
+              <button class="tnote-fmt-btn" id="tnote-fmt-ar" title="Alinhar à direita">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="5" y1="18" x2="21" y2="18"/></svg>
+              </button>
+              <button class="tnote-fmt-btn" id="tnote-fmt-aj" title="Justificar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              </button>
+              <div class="tnote-fmt-sep"></div>
+              <button class="tnote-fmt-btn" id="tnote-fmt-check" title="Adicionar item de checklist">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              </button>
+            </div>
+            <div class="tnote-editor-body" id="tnote-editor-body" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Conteúdo da nota"></div>
+          </div>
+        </div>
+
+        <!-- View: Calendário -->
+        <div id="view-calendario" class="view hidden">
+          <div class="cal-layout">
+
+            <!-- Grade principal -->
+            <div class="cal-main">
+              <div class="cal-main-header">
+                <button class="cal-nav-btn" id="cal-prev" title="Mês anterior">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <h2 class="cal-month-title" id="cal-month-title"></h2>
+                <button class="cal-nav-btn" id="cal-next" title="Próximo mês">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+                <button class="cal-today-btn" id="cal-today">Hoje</button>
+              </div>
+              <div class="cal-weekdays" id="cal-weekdays"></div>
+              <div class="cal-grid" id="cal-grid"></div>
+            </div>
+
+            <!-- Grade secundária (mini strip) -->
+            <div class="cal-mini-strip" id="cal-mini-strip"></div>
+
+            <!-- Painel do dia (slide up) -->
+            <div class="cal-day-panel" id="cal-day-panel">
+              <div class="cal-day-panel-header">
+                <span class="cal-day-panel-title" id="cal-day-panel-title"></span>
+                <button class="cal-day-panel-close" id="cal-day-panel-close" title="Fechar">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+              <div class="cal-day-panel-body" id="cal-day-panel-body"></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- View: outros (em breve) -->
+        <div id="view-outros" class="view hidden">
+          <span class="outros-icon">🚧</span>
+          <p class="outros-title">Em breve</p>
+          <p class="outros-sub">Esta seção ainda está em desenvolvimento.</p>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ===================== EXTENSÃO ===================== -->
+
+  <button class="ext-trigger" id="ext-trigger" aria-label="Abrir Notas Rápidas" title="Notas Rápidas">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+      <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+    </svg>
+  </button>
+
+  <div class="ext-backdrop" id="ext-backdrop"></div>
+
+  <aside class="ext-panel" id="ext-panel" role="complementary" aria-label="Notas Rápidas">
+
+    <div class="panel-header">
+      <div class="panel-header-icon">
+        <svg width="15" height="15" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+        </svg>
+      </div>
+      <span class="panel-title">Notas Rápidas</span>
+      <span class="panel-count" id="panel-counter">0 notas</span>
+      <button class="panel-icon-btn" id="btn-close" aria-label="Fechar painel">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="notes-list" id="notes-list">
+      <div id="panel-empty" aria-live="polite">
+        <span class="empty-icon">📋</span>
+        <p class="empty-title">Nenhuma nota ainda</p>
+        <p class="empty-sub">Clique em + para adicionar<br>sua primeira nota</p>
+      </div>
+    </div>
+
+    <button class="panel-fab" id="btn-fab" aria-label="Adicionar nova nota">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </button>
+
+    <div class="add-form" id="add-form" role="form" aria-label="Adicionar nota">
+      <div class="form-row">
+        <span class="form-label">Cor:</span>
+        <div class="color-picker" id="color-picker" role="group" aria-label="Escolher cor da nota"></div>
+      </div>
+      <div
+        id="note-input"
+        contenteditable="true"
+        role="textbox"
+        aria-label="Texto da nota"
+        aria-required="true"
+        aria-multiline="true"
+      ></div>
+      <div id="error-msg" role="alert" aria-live="polite" aria-atomic="true"></div>
+      <div class="form-actions">
+        <button type="button" class="btn-ghost" id="btn-cancel">Cancelar</button>
+        <button type="button" class="btn-solid" id="btn-save">Salvar nota</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Scripts (ordem de dependências) -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/constants.js"></script>
+  <script src="js/dom-refs.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/navigation.js"></script>
+  <script src="js/board-canvas.js"></script>
+  <script src="js/note-manager.js"></script>
+  <script src="js/panel.js"></script>
+  <script src="js/undo-redo.js"></script>
+  <script src="js/board-menus.js"></script>
+  <script src="js/board-manager.js"></script>
+  <script src="js/notes-view.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

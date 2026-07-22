@@ -1,0 +1,227 @@
+/* === 12. MENU DE CONTA === */
+.avatar-wrap {
+  position: relative;
+  margin-left: auto;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.gc-bar-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #34a853, #4285f4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: .85rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color .2s, box-shadow .2s;
+  user-select: none;
+}
+.gc-bar-avatar:hover { border-color: rgba(255,255,255,.5); }
+.gc-bar-avatar.open { border-color: rgba(255,255,255,.8); box-shadow: 0 0 0 3px rgba(255,255,255,.2); }
+
+.account-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 280px;
+  background: var(--surface);
+  border: 1px solid var(--outline);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.18);
+  z-index: 700;
+  overflow: hidden;
+  opacity: 0;
+  transform: scale(.95) translateY(-8px);
+  transform-origin: top right;
+  pointer-events: none;
+  transition: opacity .18s var(--ease), transform .18s var(--ease);
+}
+.account-menu.open {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+}
+
+/* Cabeçalho do menu */
+.acct-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid var(--outline);
+  gap: 8px;
+}
+.acct-avatar-lg {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #34a853, #4285f4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.acct-name {
+  font-size: .95rem;
+  font-weight: 500;
+  color: var(--text);
+  text-align: center;
+}
+.acct-email {
+  font-size: .78rem;
+  color: var(--text-2);
+  text-align: center;
+}
+.acct-manage-btn {
+  margin-top: 4px;
+  padding: 6px 16px;
+  border: 1px solid var(--outline);
+  border-radius: 20px;
+  background: transparent;
+  font-size: .8rem;
+  color: var(--primary);
+  font-family: inherit;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background .15s;
+}
+.acct-manage-btn:hover { background: var(--primary-light); }
+
+/* Itens do menu */
+.acct-section { padding: 6px 0; border-bottom: 1px solid var(--outline); }
+.acct-section:last-child { border-bottom: none; }
+.acct-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  font-size: .875rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: background .15s;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+.acct-item:hover { background: var(--surface-3); }
+.acct-item.danger { color: var(--danger); }
+.acct-item.danger:hover { background: var(--danger-bg); }
+.acct-item-icon {
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; opacity: .7; color: var(--text-2);
+}
+.acct-item.danger .acct-item-icon { color: var(--danger); opacity: 1; }
+.acct-item-label { flex: 1; }
+.acct-item-badge {
+  font-size: .68rem;
+  background: var(--primary-light);
+  color: var(--primary);
+  padding: 2px 7px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* Modal de edição de perfil */
+.acct-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  z-index: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.acct-modal-overlay.open { opacity: 1; pointer-events: auto; }
+.acct-modal {
+  background: var(--surface);
+  border-radius: 14px;
+  width: 380px;
+  max-width: 95vw;
+  box-shadow: 0 12px 48px rgba(0,0,0,.22);
+  overflow: hidden;
+  transform: scale(.95);
+  transition: transform .2s var(--ease);
+}
+.acct-modal-overlay.open .acct-modal { transform: scale(1); }
+.acct-modal-header {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--outline);
+  gap: 10px;
+}
+.acct-modal-title { font-size: 1rem; font-weight: 500; color: var(--text); flex: 1; }
+.acct-modal-close {
+  width: 32px; height: 32px;
+  border: none; background: transparent;
+  border-radius: 50%; cursor: pointer;
+  color: var(--text-2);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s; font-size: 1.1rem;
+}
+.acct-modal-close:hover { background: var(--surface-3); }
+.acct-modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.acct-modal-avatar-row {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 4px;
+}
+.acct-modal-avatar-preview {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #34a853, #4285f4);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 1.6rem; font-weight: 500;
+  flex-shrink: 0;
+  transition: background .3s;
+}
+.acct-modal-avatar-info { display: flex; flex-direction: column; gap: 4px; }
+.acct-modal-avatar-hint { font-size: .78rem; color: var(--text-2); }
+.acct-field { display: flex; flex-direction: column; gap: 5px; }
+.acct-field label { font-size: .78rem; font-weight: 500; color: var(--text-2); }
+.acct-field input {
+  border: 1px solid var(--outline);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-family: inherit;
+  font-size: .875rem;
+  color: var(--text);
+  background: var(--surface);
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.acct-field input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(26,115,232,.12);
+}
+.acct-color-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.acct-color-opt {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform .15s, border-color .15s;
+}
+.acct-color-opt:hover { transform: scale(1.15); }
+.acct-color-opt.active { border-color: rgba(0,0,0,.35); }
+.acct-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px 16px;
+}
+

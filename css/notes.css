@@ -1,0 +1,233 @@
+/* === View: Notas (Tarefas) === */
+#view-tarefas { overflow: hidden; position: relative; }
+
+.tnotes-header {
+  padding: 20px 24px 16px;
+  display: flex; align-items: center; gap: 12px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--outline);
+  background: var(--surface);
+  position: relative; z-index: 2;
+}
+.tnotes-header h2 { font-size: 1.25rem; font-weight: 500; color: var(--text); flex: 1; }
+.tnotes-add-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 16px;
+  background: var(--primary); color: #fff;
+  border: none; border-radius: 6px; cursor: pointer;
+  font-family: inherit; font-size: .85rem; font-weight: 500;
+  transition: background .15s;
+}
+.tnotes-add-btn:hover { background: var(--primary-dark); }
+
+.tnotes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 24px;
+  padding: 28px 24px;
+  overflow-y: auto;
+  align-content: start;
+  height: calc(100% - 65px);
+}
+.tnotes-empty {
+  grid-column: 1 / -1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 80px 24px; gap: 10px; text-align: center;
+}
+.tnotes-empty-icon  { font-size: 3rem; opacity: .3; }
+.tnotes-empty-title { font-size: 1rem; font-weight: 500; color: var(--text); }
+.tnotes-empty-sub   { font-size: .85rem; color: var(--text-2); }
+
+.tnote-tile {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 8px;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 6px;
+  transition: background .15s;
+}
+.tnote-tile:hover { background: var(--surface-3); }
+.tnote-preview {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #fef9c3;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,.07);
+  box-shadow: 0 2px 8px rgba(0,0,0,.1), 0 0 0 0.5px rgba(202,138,4,.15);
+  padding: 10px 10px 0;
+  overflow: hidden;
+  position: relative;
+}
+.tnote-preview-lines {
+  position: absolute;
+  inset: 32px 0 0;
+  background-image: repeating-linear-gradient(
+    transparent, transparent 23px, rgba(202,138,4,.18) 23px, rgba(202,138,4,.18) 24px
+  );
+  pointer-events: none;
+}
+.tnote-preview-title {
+  font-size: .72rem; font-weight: 700;
+  color: #1c1917; line-height: 1.4;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  position: relative; z-index: 1;
+  margin-bottom: 2px;
+}
+.tnote-preview-text {
+  font-size: .63rem; color: #44403c;
+  line-height: 1.55; word-break: break-word;
+  overflow: hidden; display: -webkit-box;
+  -webkit-line-clamp: 8; -webkit-box-orient: vertical;
+  position: relative; z-index: 1;
+}
+.tnote-preview::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 28px;
+  background: linear-gradient(transparent, #fef9c3);
+  border-radius: 0 0 10px 10px;
+}
+
+.tnote-label { width: 100%; padding: 0 2px; }
+.tnote-title {
+  font-size: .8rem; font-weight: 500; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  text-align: center;
+}
+.tnote-date {
+  font-size: .7rem; color: var(--text-2);
+  text-align: center; margin-top: 1px;
+}
+
+/* Slide-in editor */
+.tnote-editor {
+  position: absolute; inset: 0;
+  background: var(--surface);
+  display: flex; flex-direction: column;
+  z-index: 20;
+  transform: translateX(100%);
+  transition: transform .28s var(--ease);
+}
+.tnote-editor.open { transform: translateX(0); }
+
+.tnote-editor-header {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--outline);
+  flex-shrink: 0; background: var(--surface);
+}
+.tnote-back-btn {
+  display: flex; align-items: center; gap: 3px;
+  padding: 6px 10px; border: none; background: transparent;
+  border-radius: 6px; cursor: pointer;
+  font-family: inherit; font-size: .85rem;
+  color: var(--primary); font-weight: 500;
+  transition: background .15s; flex-shrink: 0;
+}
+.tnote-back-btn:hover { background: var(--primary-light); }
+.tnote-editor-title {
+  flex: 1; border: none; outline: none;
+  font-family: inherit; font-size: 1rem; font-weight: 500;
+  color: var(--text); background: transparent;
+  padding: 4px 8px; border-radius: 4px;
+  transition: background .15s;
+}
+.tnote-editor-title:focus { background: var(--surface-2); }
+.tnote-editor-title::placeholder { color: var(--text-2); }
+.tnote-del-btn {
+  width: 34px; height: 34px;
+  border: none; background: transparent;
+  border-radius: 6px; cursor: pointer;
+  color: var(--danger);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s; flex-shrink: 0;
+}
+.tnote-del-btn:hover { background: var(--danger-bg); }
+.tnote-editor-body {
+  flex: 1; padding: 18px 22px;
+  overflow-y: auto;
+  font-size: .925rem; color: var(--text);
+  line-height: 1.75; outline: none; cursor: text;
+}
+.tnote-editor-body:empty::before {
+  content: 'Comece a escrever...';
+  color: #9aa0a6; pointer-events: none;
+}
+
+/* Barra de formatação do editor de notas */
+.tnote-format-bar {
+  display: flex; align-items: center; gap: 2px;
+  padding: 5px 14px;
+  border-bottom: 1px solid var(--outline);
+  flex-shrink: 0;
+  background: var(--surface-2);
+}
+.tnote-fmt-btn {
+  width: 28px; height: 28px;
+  border: none; background: transparent;
+  border-radius: 4px; cursor: pointer;
+  font-family: inherit; font-size: .82rem; color: var(--text);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 1px; padding: 0; transition: background .15s;
+}
+.tnote-fmt-btn:hover { background: var(--outline); }
+.tnote-fmt-sep { width: 1px; height: 16px; background: var(--outline); margin: 0 6px; flex-shrink: 0; }
+.tnote-fmt-color-wrap { position: relative; }
+.tnote-fmt-color-bar { width: 14px; height: 3px; border-radius: 1px; background: #202124; }
+.tnote-fmt-dropdown {
+  position: absolute;
+  top: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  background: var(--surface); border: 1px solid var(--outline);
+  border-radius: 8px; padding: 8px; gap: 6px;
+  display: none; flex-wrap: wrap; width: 124px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.13); z-index: 600;
+}
+.tnote-fmt-dropdown.open { display: flex; }
+.tnote-fmt-color-dot {
+  width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+  border: 2px solid transparent; padding: 0;
+  transition: transform .15s, border-color .15s;
+}
+.tnote-fmt-color-dot:hover { transform: scale(1.15); }
+.tnote-fmt-color-dot.active { border-color: rgba(0,0,0,.4); }
+.tnote-fmt-btn.fmt-active { background: var(--primary-light); color: var(--primary); }
+
+/* Itens de checklist dentro do editor */
+.ck-item {
+  display: flex; align-items: center;
+  gap: 8px; margin: 4px 0; min-height: 24px;
+}
+.ck-box {
+  width: 18px; height: 18px; flex-shrink: 0;
+  border: 2px solid #9aa0a6; border-radius: 4px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; transition: background .15s, border-color .15s;
+  user-select: none;
+}
+.ck-box::after {
+  content: '';
+  width: 5px; height: 9px;
+  border-right: 2.5px solid #fff;
+  border-bottom: 2.5px solid #fff;
+  transform: rotate(45deg) translateY(-1px);
+  opacity: 0;
+  transition: opacity .1s;
+}
+.ck-item.checked .ck-box { background: var(--primary); border-color: var(--primary); }
+.ck-item.checked .ck-box::after { opacity: 1; }
+.ck-item.checked .ck-text { text-decoration: line-through; color: var(--text-2); }
+.ck-text { flex: 1; min-width: 0; outline: none; line-height: 1.5; }
+
+/* View: Em breve */
+#view-outros {
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--text-2);
+}
+.outros-icon  { font-size: 2.8rem; opacity: .4; }
+.outros-title { font-size: 1rem; font-weight: 500; color: var(--text); }
+.outros-sub   { font-size: .85rem; }

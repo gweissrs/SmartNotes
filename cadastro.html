@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Criar conta — SmartNotes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth-page">
+
+  <!-- ── Centro ───────────────────────────────────────────────── -->
+  <main class="auth-center">
+    <div class="auth-card" role="main">
+
+      <!-- Logo / Identidade -->
+      <div class="auth-brand">
+        <div class="auth-brand-icon" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          </svg>
+        </div>
+        <div class="auth-brand-name">
+          SmartNotes <b>BETA</b>
+        </div>
+      </div>
+
+      <!-- Título -->
+      <h1 class="auth-title">Criar sua conta</h1>
+      <p class="auth-subtitle">Simples e seguro</p>
+
+      <!-- Alerta de erro global -->
+      <div class="auth-alert" id="register-alert" role="alert" aria-live="assertive">
+        <span class="auth-alert-icon" aria-hidden="true">⚠️</span>
+        <span id="register-alert-msg">Ocorreu um erro. Tente novamente.</span>
+      </div>
+
+      <!-- Formulário -->
+      <form id="register-form" novalidate autocomplete="on">
+
+        <!-- Nome e Sobrenome lado a lado -->
+        <div class="auth-row-2">
+          <div class="auth-field" id="field-fname">
+            <input
+              type="text"
+              id="reg-fname"
+              name="fname"
+              placeholder=" "
+              autocomplete="given-name"
+              required
+            >
+            <label for="reg-fname">Nome</label>
+            <span class="auth-field-msg" id="fname-msg" aria-live="polite"></span>
+          </div>
+          <div class="auth-field" id="field-lname">
+            <input
+              type="text"
+              id="reg-lname"
+              name="lname"
+              placeholder=" "
+              autocomplete="family-name"
+              required
+            >
+            <label for="reg-lname">Sobrenome</label>
+            <span class="auth-field-msg" id="lname-msg" aria-live="polite"></span>
+          </div>
+        </div>
+
+        <!-- Separador estético -->
+        <div class="auth-divider" aria-hidden="true">Informações de login</div>
+
+        <!-- E-mail -->
+        <div class="auth-field" id="field-reg-email">
+          <input
+            type="email"
+            id="reg-email"
+            name="email"
+            placeholder=" "
+            autocomplete="email"
+            inputmode="email"
+            required
+          >
+          <label for="reg-email">E-mail</label>
+          <span class="auth-field-msg" id="reg-email-msg" aria-live="polite"></span>
+        </div>
+
+        <!-- Senha -->
+        <div class="auth-field" id="field-reg-password">
+          <input
+            type="password"
+            id="reg-password"
+            name="password"
+            placeholder=" "
+            autocomplete="new-password"
+            required
+          >
+          <label for="reg-password">Senha</label>
+          <button type="button" class="auth-pwd-toggle" id="toggle-reg-pwd" aria-label="Mostrar senha" tabindex="-1">
+            <svg id="eye-icon-reg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+          <span class="auth-field-msg" id="reg-password-msg" aria-live="polite"></span>
+        </div>
+
+        <!-- Indicador de força -->
+        <div class="auth-pwd-strength" id="pwd-strength-wrap" aria-hidden="true">
+          <div class="auth-pwd-strength-bar">
+            <div class="auth-pwd-strength-seg" id="strength-seg-1"></div>
+            <div class="auth-pwd-strength-seg" id="strength-seg-2"></div>
+            <div class="auth-pwd-strength-seg" id="strength-seg-3"></div>
+            <div class="auth-pwd-strength-seg" id="strength-seg-4"></div>
+          </div>
+          <span class="auth-pwd-strength-label" id="strength-label"></span>
+        </div>
+
+        <!-- Confirmar senha -->
+        <div class="auth-field" id="field-reg-confirm">
+          <input
+            type="password"
+            id="reg-confirm"
+            name="confirm"
+            placeholder=" "
+            autocomplete="new-password"
+            required
+          >
+          <label for="reg-confirm">Confirmar senha</label>
+          <button type="button" class="auth-pwd-toggle" id="toggle-reg-confirm" aria-label="Mostrar confirmação de senha" tabindex="-1">
+            <svg id="eye-icon-confirm" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+          <span class="auth-field-msg" id="confirm-msg" aria-live="polite"></span>
+        </div>
+
+        <!-- Ações -->
+        <div class="auth-actions">
+          <a href="login.html" class="auth-btn-ghost">Já tenho conta</a>
+          <button type="submit" class="auth-btn-primary" id="btn-register">
+            <span>Criar conta</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </main>
+
+  <!-- ── Rodapé ────────────────────────────────────────────────── -->
+  <footer class="auth-footer">
+    <button class="auth-footer-lang" type="button" aria-label="Idioma: Português (Brasil)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="2" y1="12" x2="22" y2="12"/>
+        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+      </svg>
+      Português (Brasil)
+    </button>
+    <div class="auth-footer-links">
+      <a href="#" class="auth-footer-link">Ajuda</a>
+      <a href="#" class="auth-footer-link">Privacidade</a>
+      <a href="#" class="auth-footer-link">Termos</a>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>
